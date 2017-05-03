@@ -1,6 +1,5 @@
-apply plugin: rootProject.ext.plugin.application
-apply plugin: rootProject.ext.plugin.retrolambda
-apply plugin: rootProject.ext.plugin.butterknife
+apply plugin: rootProject.ext.plugins.application
+apply plugin: rootProject.ext.plugins.butterknife
 
 android {
     compileSdkVersion rootProject.ext.android.compileSdkVersion
@@ -12,6 +11,10 @@ android {
         targetSdkVersion rootProject.ext.android.targetSdkVersion
         versionCode rootProject.ext.android.versionCode
         versionName rootProject.ext.android.versionName
+
+        jackOptions {
+            enabled true
+        }
     }
 
     compileOptions {
@@ -21,8 +24,8 @@ android {
 }
 
 dependencies {
-    compile rootProject.ext.dependencies.nohttp
-    compile rootProject.ext.dependencies.okhttp
+    // compile rootProject.ext.dependencies.okhttp
+    compile project(':okhttp')
 
     // support.
     compile rootProject.ext.dependencies.appcompat
@@ -40,6 +43,6 @@ dependencies {
     compile rootProject.ext.dependencies.permisson
 
     // view bind
-    apt rootProject.ext.dependencies.butterknifeapt
+    annotationProcessor rootProject.ext.dependencies.butterknifecompiler
     compile rootProject.ext.dependencies.butterknife
 }

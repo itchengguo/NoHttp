@@ -1,2 +1,2 @@
-include ':nohttp', ':okhttp'
+include ':nohttp', ':okhttp', ':rxnohttp', ':core'
 include ':sample'
