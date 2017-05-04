@@ -21,6 +21,10 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Base64;
 
+import com.yanzhenjie.nohttp.Logger;
+import com.yanzhenjie.nohttp.db.BaseDao;
+import com.yanzhenjie.nohttp.tools.Encryption;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,9 +36,6 @@ import java.util.List;
  */
 public class CacheEntityDao extends BaseDao<CacheEntity> {
 
-    /**
-     *
-     */
     private Encryption mEncryption;
     /**
      * Encryption key.

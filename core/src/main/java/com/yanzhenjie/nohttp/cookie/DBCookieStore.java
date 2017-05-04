@@ -18,6 +18,9 @@ package com.yanzhenjie.nohttp.cookie;
 import android.content.Context;
 import android.text.TextUtils;
 
+import com.yanzhenjie.nohttp.Logger;
+import com.yanzhenjie.nohttp.db.BaseDao;
+import com.yanzhenjie.nohttp.db.Where;
 import com.yanzhenjie.nohttp.db.Where.Options;
 
 import java.net.CookieStore;
@@ -37,48 +40,51 @@ import java.util.concurrent.locks.ReentrantLock;
  */
 public class DBCookieStore implements CookieStore {
 
-    /**
-     * Cookie max count in disk.
-     */
-    private final static int MAX_COOKIE_SIZE = 8888;
-    /**
-     * Database sync lock.
-     */
-    private Lock mLock;
-    /**
-     * Cookie entity dao.
-     */
-    private BaseDao<CookieEntity> mCookieEntityDao;
-    /**
-     * When Add and remove cookie notify.
-     */
-    private CookieStoreListener mCookieStoreListener;
+    public static Builder newBuilder(Context context) {
+        return new Builder(context);
+    }
 
+    private final static int MAX_COOKIE_SIZE = 8888;
+    private Lock mLock;
+    private BaseDao<CookieEntity> mDbDao;
+
+    private CookieStoreListener mCookieStoreListener;
     private boolean mEnable = true;
 
     /**
-     * @param context {@link Context}.
+     * @deprecated use {@link #newBuilder(Context)} instead.
      */
+    @Deprecated
     public DBCookieStore(Context context) {
-        mLock = new ReentrantLock();
-        mCookieEntityDao = new CookieEntityDao(context);
+        this(newBuilder(context));
+    }
 
-        // Delete temp cookie.
-        Where where = new Where(CookieSQLHelper.EXPIRY, Options.EQUAL, -1L);
-        mCookieEntityDao.delete(where.get());
+    private DBCookieStore(Builder builder) {
+        this.mCookieStoreListener = builder.mListener;
+        this.mEnable = builder.enable;
+
+        mLock = new ReentrantLock();
+        if (mEnable) {
+            mDbDao = new CookieEntityDao(builder.mContext);
+            // Delete temp cookie.
+            Where where = new Where(CookieSQLHelper.EXPIRY, Options.EQUAL, -1L);
+            mDbDao.delete(where.get());
+        }
     }
 
     /**
-     * The callback when adding and deleting cookies.
-     *
-     * @param cookieStoreListener {@link CookieStoreListener}.
-     * @return {@link CookieStore}.
+     * @deprecated use {@link #newBuilder(Context)} instead.
      */
+    @Deprecated
     public CookieStore setCookieStoreListener(CookieStoreListener cookieStoreListener) {
         this.mCookieStoreListener = cookieStoreListener;
         return this;
     }
 
+    /**
+     * @deprecated use {@link #newBuilder(Context)} instead.
+     */
+    @Deprecated
     public CookieStore setEnable(boolean enable) {
         this.mEnable = enable;
         return this;
@@ -92,7 +98,7 @@ public class DBCookieStore implements CookieStore {
                 uri = getEffectiveURI(uri);
                 if (mCookieStoreListener != null)
                     mCookieStoreListener.onSaveCookie(uri, cookie);
-                mCookieEntityDao.replace(new CookieEntity(uri, cookie));
+                mDbDao.replace(new CookieEntity(uri, cookie));
                 trimSize();
             }
         } finally {
@@ -141,7 +147,7 @@ public class DBCookieStore implements CookieStore {
 
             where.or(CookieSQLHelper.URI, Options.EQUAL, uri.toString());
 
-            List<CookieEntity> cookieList = mCookieEntityDao.getList(where.get(), null, null, null);
+            List<CookieEntity> cookieList = mDbDao.getList(where.get(), null, null, null);
             List<HttpCookie> returnedCookies = new ArrayList<>();
             for (CookieEntity cookieEntity : cookieList)
                 if (!cookieEntity.isExpired())
@@ -158,7 +164,7 @@ public class DBCookieStore implements CookieStore {
         try {
             if (!mEnable) return Collections.emptyList();
             List<HttpCookie> rt = new ArrayList<>();
-            List<CookieEntity> cookieEntityList = mCookieEntityDao.getAll();
+            List<CookieEntity> cookieEntityList = mDbDao.getAll();
             for (CookieEntity cookieEntity : cookieEntityList)
                 if (!cookieEntity.isExpired())
                     rt.add(cookieEntity.toHttpCookie());
@@ -174,7 +180,7 @@ public class DBCookieStore implements CookieStore {
         try {
             if (!mEnable) return Collections.emptyList();
             List<URI> uris = new ArrayList<>();
-            List<CookieEntity> uriList = mCookieEntityDao.getAll();
+            List<CookieEntity> uriList = mDbDao.getAll();
             for (CookieEntity cookie : uriList) {
                 String uri = cookie.getUri();
                 if (!TextUtils.isEmpty(uri))
@@ -182,7 +188,7 @@ public class DBCookieStore implements CookieStore {
                         uris.add(new URI(uri));
                     } catch (Throwable e) {
                         Logger.w(e);
-                        mCookieEntityDao.delete(CookieSQLHelper.URI + '=' + uri);
+                        mDbDao.delete(CookieSQLHelper.URI + '=' + uri);
                     }
             }
             return uris;
@@ -212,7 +218,7 @@ public class DBCookieStore implements CookieStore {
                 }
                 where.and(CookieSQLHelper.PATH, Options.EQUAL, path);
             }
-            return mCookieEntityDao.delete(where.toString());
+            return mDbDao.delete(where.toString());
         } finally {
             mLock.unlock();
         }
@@ -223,7 +229,7 @@ public class DBCookieStore implements CookieStore {
         mLock.lock();
         try {
             if (!mEnable) return true;
-            return mCookieEntityDao.deleteAll();
+            return mDbDao.deleteAll();
         } finally {
             mLock.unlock();
         }
@@ -233,12 +239,12 @@ public class DBCookieStore implements CookieStore {
      * Trim the Cookie list.
      */
     private void trimSize() {
-        int count = mCookieEntityDao.count();
+        int count = mDbDao.count();
         if (count > MAX_COOKIE_SIZE + 10) {
-            List<CookieEntity> rmList = mCookieEntityDao.getList(null, null, Integer.toString(count -
+            List<CookieEntity> rmList = mDbDao.getList(null, null, Integer.toString(count -
                     MAX_COOKIE_SIZE), null);
             if (rmList != null)
-                mCookieEntityDao.delete(rmList);
+                mDbDao.delete(rmList);
         }
     }
 
@@ -273,6 +279,32 @@ public class DBCookieStore implements CookieStore {
          * @param cookie {@link HttpCookie}.
          */
         void onRemoveCookie(URI uri, HttpCookie cookie);
+
+    }
+
+    public static final class Builder {
+
+        private Context mContext;
+        private CookieStoreListener mListener;
+        private boolean enable = true;
+
+        private Builder(Context context) {
+            this.mContext = context;
+        }
+
+        public Builder listener(CookieStoreListener listener) {
+            this.mListener = listener;
+            return this;
+        }
+
+        public Builder enable(boolean enable) {
+            this.enable = enable;
+            return this;
+        }
+
+        public DBCookieStore build() {
+            return new DBCookieStore(this);
+        }
 
     }
 }

@@ -20,6 +20,8 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
+import com.yanzhenjie.nohttp.db.BaseDao;
+
 import java.util.ArrayList;
 import java.util.List;
 

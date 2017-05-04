@@ -18,6 +18,8 @@ package com.yanzhenjie.nohttp.cookie;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 
+import com.yanzhenjie.nohttp.db.BasicSQLHelper;
+
 /**
  * <p>Cookie database operation class.</p>
  * Created in Dec 18, 2015 6:30:59 PM.

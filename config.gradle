@@ -12,6 +12,7 @@ ext {
             compileSdkVersion: 25,
             buildToolsVersion: "25.0.2",
 
+            libraryMinSdkVersion : 9,
             minSdkVersion    : 11,
             targetSdkVersion : 25,
 

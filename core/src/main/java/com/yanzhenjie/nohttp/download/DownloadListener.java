@@ -15,6 +15,15 @@
  */
 package com.yanzhenjie.nohttp.download;
 
+import com.yanzhenjie.nohttp.Headers;
+import com.yanzhenjie.nohttp.error.NetworkError;
+import com.yanzhenjie.nohttp.error.ServerError;
+import com.yanzhenjie.nohttp.error.StorageReadWriteError;
+import com.yanzhenjie.nohttp.error.StorageSpaceNotEnoughError;
+import com.yanzhenjie.nohttp.error.TimeoutError;
+import com.yanzhenjie.nohttp.error.UnKnownHostError;
+import com.yanzhenjie.nohttp.error.URLError;
+
 /**
  * <p>The download process monitor.</p>
  * Created in Jul 31, 2015 9:12:55 AM;

@@ -15,12 +15,14 @@
  */
 package com.yanzhenjie.nohttp.download;
 
+import com.yanzhenjie.nohttp.NoHttp;
+
 /**
  * Created by Yan Zhenjie on 2016/10/12.
  */
 public enum SyncDownloadExecutor {
 
-    INSTANCE, AsyncRequestExecutor;
+    INSTANCE;
 
     private Downloader mDownloader;
 

@@ -17,6 +17,10 @@ package com.yanzhenjie.nohttp.cache;
 
 import android.content.Context;
 
+import com.yanzhenjie.nohttp.db.BaseDao;
+import com.yanzhenjie.nohttp.db.Where;
+import com.yanzhenjie.nohttp.tools.CacheStore;
+
 import java.util.List;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -29,22 +33,37 @@ import java.util.concurrent.locks.ReentrantLock;
  */
 public class DBCacheStore implements CacheStore<CacheEntity> {
 
-    /**
-     * Database sync lock.
-     */
-    private Lock mLock;
-    /**
-     * Database manager.
-     */
-    private BaseDao<CacheEntity> mManager;
-
-    private boolean mEnable = true;
-
-    public DBCacheStore(Context context) {
-        mLock = new ReentrantLock();
-        mManager = new CacheEntityDao(context);
+    public static Builder newBuilder(Context context) {
+        return new Builder(context);
     }
 
+    private Lock mLock;
+    private BaseDao<CacheEntity> mDbDao;
+    private boolean mEnable = true;
+
+    /**
+     * @param context
+     * @deprecated use {@link #newBuilder(Context)} instead.
+     */
+    @Deprecated
+    public DBCacheStore(Context context) {
+        this(newBuilder(context));
+    }
+
+    private DBCacheStore(Builder builder) {
+        mLock = new ReentrantLock();
+        if (builder.mEnable)
+            mDbDao = new CacheEntityDao(builder.mContext);
+    }
+
+    /**
+     * Set cache enable.
+     *
+     * @param enable true or false.
+     * @return {@link DBCacheStore}.
+     * @deprecated use {@link #newBuilder(Context)} instead.
+     */
+    @Deprecated
     public CacheStore<CacheEntity> setEnable(boolean enable) {
         this.mEnable = enable;
         return this;
@@ -56,7 +75,7 @@ public class DBCacheStore implements CacheStore<CacheEntity> {
         try {
             if (!mEnable) return null;
             Where where = new Where(CacheSQLHelper.KEY, Where.Options.EQUAL, key);
-            List<CacheEntity> cacheEntities = mManager.getList(where.get(), null, null, null);
+            List<CacheEntity> cacheEntities = mDbDao.getList(where.get(), null, null, null);
             return cacheEntities.size() > 0 ? cacheEntities.get(0) : null;
         } finally {
             mLock.unlock();
@@ -69,7 +88,7 @@ public class DBCacheStore implements CacheStore<CacheEntity> {
         try {
             if (!mEnable) return cacheEntity;
             cacheEntity.setKey(key);
-            mManager.replace(cacheEntity);
+            mDbDao.replace(cacheEntity);
             return cacheEntity;
         } finally {
             mLock.unlock();
@@ -83,7 +102,7 @@ public class DBCacheStore implements CacheStore<CacheEntity> {
             if (key == null || !mEnable)
                 return false;
             Where where = new Where(CacheSQLHelper.KEY, Where.Options.EQUAL, key);
-            return mManager.delete(where.toString());
+            return mDbDao.delete(where.toString());
         } finally {
             mLock.unlock();
         }
@@ -94,9 +113,28 @@ public class DBCacheStore implements CacheStore<CacheEntity> {
         mLock.lock();
         try {
             if (!mEnable) return false;
-            return mManager.deleteAll();
+            return mDbDao.deleteAll();
         } finally {
             mLock.unlock();
+        }
+    }
+
+    public static final class Builder {
+
+        private Context mContext;
+        private boolean mEnable = true;
+
+        private Builder(Context context) {
+            mContext = context;
+        }
+
+        public Builder enable(boolean enable) {
+            this.mEnable = enable;
+            return this;
+        }
+
+        public DBCacheStore build() {
+            return new DBCacheStore(this);
         }
     }
 

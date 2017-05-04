@@ -17,6 +17,8 @@ package com.yanzhenjie.nohttp.tools;
 
 import android.text.TextUtils;
 
+import com.yanzhenjie.nohttp.Headers;
+
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;

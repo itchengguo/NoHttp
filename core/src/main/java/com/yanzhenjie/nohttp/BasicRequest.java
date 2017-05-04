@@ -38,7 +38,6 @@ import java.net.URLEncoder;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.BlockingQueue;
 
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLSocketFactory;
@@ -57,14 +56,6 @@ public abstract class BasicRequest implements IBasicRequest {
     private final String startBoundary = "--" + boundary;
     private final String endBoundary = startBoundary + "--";
 
-    /**
-     * Request priority.
-     */
-    private Priority mPriority = Priority.DEFAULT;
-    /**
-     * The sequence.
-     */
-    private int sequence;
     /**
      * Target address.
      */
@@ -122,10 +113,6 @@ public abstract class BasicRequest implements IBasicRequest {
      */
     private RedirectHandler mRedirectHandler;
     /**
-     * Request queue
-     */
-    private BlockingQueue<?> blockingQueue;
-    /**
      * The record has started.
      */
     private boolean isStart = false;
@@ -172,35 +159,6 @@ public abstract class BasicRequest implements IBasicRequest {
         mHeaders.set(Headers.HEAD_KEY_USER_AGENT, UserAgent.instance());
 
         mParamKeyValues = new LinkedMultiValueMap<>();
-    }
-
-    @Override
-    public IBasicRequest setPriority(Priority priority) {
-        this.mPriority = priority;
-        return this;
-    }
-
-    @Override
-    public Priority getPriority() {
-        return mPriority;
-    }
-
-    @Override
-    public IBasicRequest setSequence(int sequence) {
-        this.sequence = sequence;
-        return this;
-    }
-
-    @Override
-    public int getSequence() {
-        return this.sequence;
-    }
-
-    @Override
-    public final int compareTo(IBasicRequest another) {
-        final Priority me = getPriority();
-        final Priority it = another.getPriority();
-        return me == it ? getSequence() - another.getSequence() : it.ordinal() - me.ordinal();
     }
 
     @Override
@@ -795,16 +753,6 @@ public abstract class BasicRequest implements IBasicRequest {
     }
 
     @Override
-    public void setQueue(BlockingQueue<?> queue) {
-        blockingQueue = queue;
-    }
-
-    @Override
-    public boolean inQueue() {
-        return blockingQueue != null && blockingQueue.contains(this);
-    }
-
-    @Override
     public void start() {
         this.isStart = true;
     }
@@ -830,9 +778,6 @@ public abstract class BasicRequest implements IBasicRequest {
             isCanceled = true;
             if (mRequestBody != null)
                 IOUtils.closeQuietly(mRequestBody);
-
-            if (blockingQueue != null)
-                blockingQueue.remove(this);
 
             // cancel file upload
             Set<String> keys = mParamKeyValues.keySet();

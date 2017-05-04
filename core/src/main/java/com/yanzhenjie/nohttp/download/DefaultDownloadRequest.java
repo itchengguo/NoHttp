@@ -15,6 +15,9 @@
  */
 package com.yanzhenjie.nohttp.download;
 
+import com.yanzhenjie.nohttp.BasicRequest;
+import com.yanzhenjie.nohttp.RequestMethod;
+
 import java.io.File;
 
 /**
@@ -27,14 +30,6 @@ import java.io.File;
  */
 public class DefaultDownloadRequest extends BasicRequest implements DownloadRequest {
 
-    /**
-     * The callback mark.
-     */
-    private int what;
-    /**
-     * The request of the listener.
-     */
-    private DownloadListener downloadListener;
     /**
      * File the target folder.
      */
@@ -66,7 +61,10 @@ public class DefaultDownloadRequest extends BasicRequest implements DownloadRequ
      *                      complete, not to request the network.
      * @see #DefaultDownloadRequest(String, RequestMethod, String, String, boolean, boolean)
      */
-    public DefaultDownloadRequest(String url, RequestMethod requestMethod, String fileFolder, boolean isDeleteOld) {
+    public DefaultDownloadRequest(String url,
+                                  RequestMethod requestMethod,
+                                  String fileFolder,
+                                  boolean isDeleteOld) {
         this(url, requestMethod, fileFolder, null, true, false, isDeleteOld);
     }
 
@@ -82,8 +80,12 @@ public class DefaultDownloadRequest extends BasicRequest implements DownloadRequ
      *                      complete, not to request the network.
      * @see #DefaultDownloadRequest(String, RequestMethod, String, boolean)
      */
-    public DefaultDownloadRequest(String url, RequestMethod requestMethod, String fileFolder, String filename,
-                                  boolean isRange, boolean isDeleteOld) {
+    public DefaultDownloadRequest(String url,
+                                  RequestMethod requestMethod,
+                                  String fileFolder,
+                                  String filename,
+                                  boolean isRange,
+                                  boolean isDeleteOld) {
         this(url, requestMethod, fileFolder, filename, false, isRange, isDeleteOld);
     }
 
@@ -99,8 +101,13 @@ public class DefaultDownloadRequest extends BasicRequest implements DownloadRequ
      * @param isDeleteOld    find the same when the file is deleted after download, or on behalf of the download is
      *                       complete, not to request the network.
      */
-    private DefaultDownloadRequest(String url, RequestMethod requestMethod, String fileFolder, String filename,
-                                   boolean autoNameByHead, boolean isRange, boolean isDeleteOld) {
+    private DefaultDownloadRequest(String url,
+                                   RequestMethod requestMethod,
+                                   String fileFolder,
+                                   String filename,
+                                   boolean autoNameByHead,
+                                   boolean isRange,
+                                   boolean isDeleteOld) {
         super(url, requestMethod);
         this.mFileDir = fileFolder;
         this.mFileName = filename;
@@ -148,21 +155,5 @@ public class DefaultDownloadRequest extends BasicRequest implements DownloadRequ
             }
         }
         return STATUS_RESTART;
-    }
-
-    @Override
-    public void onPreResponse(int what, DownloadListener downloadListener) {
-        this.what = what;
-        this.downloadListener = downloadListener;
-    }
-
-    @Override
-    public int what() {
-        return what;
-    }
-
-    @Override
-    public DownloadListener downloadListener() {
-        return downloadListener;
     }
 }

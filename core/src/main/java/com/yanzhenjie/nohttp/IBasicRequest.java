@@ -15,11 +15,10 @@
  */
 package com.yanzhenjie.nohttp;
 
-import com.yanzhenjie.nohttp.tools.MultiValueMap;
 import com.yanzhenjie.nohttp.able.Cancelable;
 import com.yanzhenjie.nohttp.able.Finishable;
-import com.yanzhenjie.nohttp.able.Queueable;
 import com.yanzhenjie.nohttp.able.Startable;
+import com.yanzhenjie.nohttp.tools.MultiValueMap;
 
 import org.json.JSONObject;
 
@@ -38,30 +37,13 @@ import javax.net.ssl.SSLSocketFactory;
 /**
  * Created by Yan Zhenjie on 2016/8/20.
  */
-public interface IBasicRequest extends Queueable, Startable, Cancelable, Finishable, Comparable<IBasicRequest> {
+public interface IBasicRequest extends Startable, Cancelable, Finishable {
 
     /*
      * =====================================================
      * ||                     Client                      ||
      * =====================================================
      */
-
-    /**
-     * Set the priority of the request object. The default priority is {@link Priority#DEFAULT}.
-     *
-     * @param priority {@link Priority}.
-     * @return {@link IBasicRequest}.
-     */
-    IBasicRequest setPriority(Priority priority);
-
-    /**
-     * Set the sequence in the queue, under the condition of two requests as priority, {@code left.sequence-right
-     * .sequence} decision to order.
-     *
-     * @param sequence sequence code.
-     * @return {@link IBasicRequest}.
-     */
-    IBasicRequest setSequence(int sequence);
 
     /**
      * Mandatory set to form pattern to transmit data.
@@ -495,21 +477,6 @@ public interface IBasicRequest extends Queueable, Startable, Cancelable, Finisha
      * ||                     Server                      ||
      * =====================================================
      */
-
-    /**
-     * Get the priority of the request object.
-     *
-     * @return {@link Priority}.
-     */
-    Priority getPriority();
-
-    /**
-     * Get the sequence in the queue, under the condition of two requests as priority, {@code left.sequence-right
-     * .sequence} decision to order.
-     *
-     * @return sequence code.
-     */
-    int getSequence();
 
     /**
      * Return url of request.

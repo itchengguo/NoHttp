@@ -15,6 +15,8 @@
  */
 package com.yanzhenjie.nohttp.tools;
 
+import com.yanzhenjie.nohttp.Logger;
+
 import java.security.Key;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;

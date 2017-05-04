@@ -23,14 +23,14 @@ import java.util.concurrent.BlockingQueue;
  *
  * @author Yan Zhenjie;
  */
-public interface Queueable {
+public interface Queueable<T> {
 
     /**
      * Set the request in the queue.
      *
      * @param queue queue.
      */
-    void setQueue(BlockingQueue<?> queue);
+    void setQueue(BlockingQueue<T> queue);
 
     /**
      * In the queue?

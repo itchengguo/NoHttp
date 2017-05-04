@@ -18,6 +18,23 @@ package com.yanzhenjie.nohttp.download;
 import android.text.TextUtils;
 import android.util.Log;
 
+import com.yanzhenjie.nohttp.Connection;
+import com.yanzhenjie.nohttp.Headers;
+import com.yanzhenjie.nohttp.HttpConnection;
+import com.yanzhenjie.nohttp.Logger;
+import com.yanzhenjie.nohttp.NetworkExecutor;
+import com.yanzhenjie.nohttp.NoHttp;
+import com.yanzhenjie.nohttp.error.NetworkError;
+import com.yanzhenjie.nohttp.error.ServerError;
+import com.yanzhenjie.nohttp.error.StorageReadWriteError;
+import com.yanzhenjie.nohttp.error.StorageSpaceNotEnoughError;
+import com.yanzhenjie.nohttp.error.TimeoutError;
+import com.yanzhenjie.nohttp.error.URLError;
+import com.yanzhenjie.nohttp.error.UnKnownHostError;
+import com.yanzhenjie.nohttp.tools.HeaderUtil;
+import com.yanzhenjie.nohttp.tools.IOUtils;
+import com.yanzhenjie.nohttp.tools.NetUtil;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -229,6 +246,7 @@ public class Downloader {
                         speedCount += len;
 
                         long time = System.currentTimeMillis() - startTime;
+                        time = Math.max(time, 1);
 
                         long speed = speedCount * 1000 / time;
 

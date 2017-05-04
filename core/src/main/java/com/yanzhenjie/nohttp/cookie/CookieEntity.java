@@ -17,6 +17,9 @@ package com.yanzhenjie.nohttp.cookie;
 
 import android.text.TextUtils;
 
+import com.yanzhenjie.nohttp.db.BasicEntity;
+import com.yanzhenjie.nohttp.tools.HeaderUtil;
+
 import java.net.HttpCookie;
 import java.net.URI;
 

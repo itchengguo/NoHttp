@@ -18,6 +18,11 @@ package com.yanzhenjie.nohttp.cache;
 import android.content.Context;
 import android.text.TextUtils;
 
+import com.yanzhenjie.nohttp.Logger;
+import com.yanzhenjie.nohttp.tools.CacheStore;
+import com.yanzhenjie.nohttp.tools.Encryption;
+import com.yanzhenjie.nohttp.tools.IOUtils;
+
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -32,39 +37,34 @@ import java.util.concurrent.locks.ReentrantLock;
  */
 public class DiskCacheStore implements CacheStore<CacheEntity> {
 
-    /**
-     * Database sync lock.
-     */
+    public static Builder newBuilder(Context context) {
+        return new Builder(context);
+    }
+
     private Lock mLock;
-    /**
-     *
-     */
     private Encryption mEncryption;
-    /**
-     * Folder.
-     */
-    private String mCacheDirectory;
+    private File mCacheDirectory;
 
     /**
-     * You must remember to check the runtime permissions.
-     *
-     * @param context {@link Context}.
+     * @deprecated use {@link #newBuilder(Context)} instead.
      */
+    @Deprecated
     public DiskCacheStore(Context context) {
-        this(context.getCacheDir().getAbsolutePath());
+        this(newBuilder(context));
     }
 
     /**
-     * Introduced to the cache folder, you must remember to check the runtime permissions.
-     *
-     * @param cacheDirectory cache directory.
+     * @deprecated use {@link #newBuilder(Context)} instead.
      */
+    @Deprecated
     public DiskCacheStore(String cacheDirectory) {
-        if (TextUtils.isEmpty(cacheDirectory))
-            throw new IllegalArgumentException("The cacheDirectory can't be null.");
-        mLock = new ReentrantLock();
-        mEncryption = new Encryption(DiskCacheStore.class.getSimpleName());
-        mCacheDirectory = cacheDirectory;
+        this(newBuilder(null).cacheDirectory(new File(cacheDirectory)));
+    }
+
+    private DiskCacheStore(Builder builder) {
+        this.mLock = new ReentrantLock();
+        this.mEncryption = new Encryption(DiskCacheStore.class.getSimpleName());
+        this.mCacheDirectory = builder.mCacheDirectory;
     }
 
     @Override
@@ -159,6 +159,26 @@ public class DiskCacheStore implements CacheStore<CacheEntity> {
 
     private String decrypt(String cipherText) throws Exception {
         return mEncryption.decrypt(cipherText);
+    }
+
+    public static final class Builder {
+
+        private Context mContext;
+        private File mCacheDirectory;
+
+        private Builder(Context context) {
+            this.mContext = context;
+            this.mCacheDirectory = mContext.getCacheDir();
+        }
+
+        public Builder cacheDirectory(File directory) {
+            this.mCacheDirectory = directory;
+            return this;
+        }
+
+        public DiskCacheStore build() {
+            return new DiskCacheStore(this);
+        }
     }
 
 }

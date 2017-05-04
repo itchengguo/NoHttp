@@ -18,6 +18,8 @@ package com.yanzhenjie.nohttp.cache;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 
+import com.yanzhenjie.nohttp.db.BasicSQLHelper;
+
 /**
  * <p>CacheStore database operation class.</p>
  * Created in Jan 10, 2016 12:39:15 AM.

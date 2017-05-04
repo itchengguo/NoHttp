@@ -15,6 +15,8 @@
  */
 package com.yanzhenjie.nohttp.rest;
 
+import com.yanzhenjie.nohttp.Priority;
+
 /**
  * <p>
  * Extended {@link IProtocolRequest} class, to increase the method of recording response.
@@ -25,7 +27,7 @@ package com.yanzhenjie.nohttp.rest;
  *            {@link OnResponseListener}, {@link Response}.
  * @author Yan Zhenjie.
  */
-public interface Request<T> extends IProtocolRequest<T> {
+public interface Request<T> extends IProtocolRequest<T>, Comparable<IBasicRequest> {
 
     /**
      * Prepare the callback parameter, while waiting for the response callback with thread.
@@ -50,4 +52,36 @@ public interface Request<T> extends IProtocolRequest<T> {
      * @see #onPreResponse(int, OnResponseListener)
      */
     OnResponseListener<T> responseListener();
+
+    /**
+     * Set the priority of the request object. The default priority is {@link Priority#DEFAULT}.
+     *
+     * @param priority {@link Priority}.
+     * @return {@link IBasicRequest}.
+     */
+    Request setPriority(Priority priority);
+
+    /**
+     * Set the sequence in the queue, under the condition of two requests as priority, {@code left.sequence-right
+     * .sequence} decision to order.
+     *
+     * @param sequence sequence code.
+     * @return {@link IBasicRequest}.
+     */
+    Request setSequence(int sequence);
+
+    /**
+     * Get the priority of the request object.
+     *
+     * @return {@link Priority}.
+     */
+    Priority getPriority();
+
+    /**
+     * Get the sequence in the queue, under the condition of two requests as priority, {@code left.sequence-right
+     * .sequence} decision to order.
+     *
+     * @return sequence code.
+     */
+    int getSequence();
 }

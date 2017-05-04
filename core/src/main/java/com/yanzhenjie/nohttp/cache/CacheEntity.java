@@ -17,6 +17,11 @@ package com.yanzhenjie.nohttp.cache;
 
 import android.util.Base64;
 
+import com.yanzhenjie.nohttp.Headers;
+import com.yanzhenjie.nohttp.HttpHeaders;
+import com.yanzhenjie.nohttp.Logger;
+import com.yanzhenjie.nohttp.db.BasicEntity;
+
 import org.json.JSONException;
 
 /**

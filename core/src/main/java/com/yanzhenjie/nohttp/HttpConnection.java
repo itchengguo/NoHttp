@@ -22,7 +22,6 @@ import com.yanzhenjie.nohttp.error.NetworkError;
 import com.yanzhenjie.nohttp.error.TimeoutError;
 import com.yanzhenjie.nohttp.error.URLError;
 import com.yanzhenjie.nohttp.error.UnKnownHostError;
-import com.yanzhenjie.nohttp.rest.Request;
 import com.yanzhenjie.nohttp.tools.IOUtils;
 import com.yanzhenjie.nohttp.tools.NetUtil;
 
@@ -65,9 +64,8 @@ public class HttpConnection {
         Network network = null;
         String url = request.url();
         try {
-            if (!NetUtil.isNetworkAvailable())
-                throw new NetworkError("The network is not available, please check the network. The requested url is:" +
-                        " " + url);
+            if (!NetUtil.isNetworkAvailable(NoHttp.getContext()))
+                throw new NetworkError("The network is not available, please check the network. The requested url is: " + url);
 
             // MalformedURLException, IOException, ProtocolException, UnknownHostException, SocketTimeoutException
             network = createConnectionAndWriteData(request);
@@ -184,7 +182,7 @@ public class HttpConnection {
     /**
      * The redirection process any response.
      *
-     * @param oldRequest      need to redirect the {@link Request}.
+     * @param oldRequest      need to redirect the {@link IBasicRequest}.
      * @param responseHeaders need to redirect the request of the responding head.
      * @return {@link Connection}.
      */
@@ -278,8 +276,10 @@ public class HttpConnection {
      * @return true: there is data, false: no data.
      */
     public static boolean hasResponseBody(int responseCode) {
-        return !(100 <= responseCode && responseCode < 200) && responseCode != 204 && responseCode != 205 && !(300 <=
-                responseCode && responseCode < 400);
+        return !(100 <= responseCode && responseCode < 200)
+                && responseCode != 204
+                && responseCode != 205
+                && !(300 <= responseCode && responseCode < 400);
     }
 
 }
