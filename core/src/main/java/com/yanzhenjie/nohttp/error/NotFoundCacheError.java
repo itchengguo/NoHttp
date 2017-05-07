@@ -16,9 +16,8 @@
 package com.yanzhenjie.nohttp.error;
 
 /**
- * Created in 2016/3/3 13:34.
- *
- * @author Yan Zhenjie.
+ * <p>Not found cache.</p>
+ * Created by Yan Zhenjie on 2016/3/3.
  */
 public class NotFoundCacheError extends Exception {
 

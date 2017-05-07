@@ -19,9 +19,10 @@ import java.util.LinkedHashMap;
 import java.util.List;
 
 /**
- * Created in Jan 10, 2016 5:03:17 PM.
+ * Created by Yan Zhenjie on Jan 10, 2016.
  *
- * @author Yan Zhenjie.
+ * @param <K> key.
+ * @param <V> value.
  */
 public class LinkedMultiValueMap<K, V> extends BasicMultiValueMap<K, V> {
 

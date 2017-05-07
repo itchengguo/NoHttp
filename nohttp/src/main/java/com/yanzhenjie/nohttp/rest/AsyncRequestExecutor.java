@@ -15,6 +15,10 @@
  */
 package com.yanzhenjie.nohttp.rest;
 
+import com.yanzhenjie.nohttp.Delivery;
+import com.yanzhenjie.nohttp.HandlerDelivery;
+import com.yanzhenjie.nohttp.Logger;
+
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -40,17 +44,18 @@ public enum AsyncRequestExecutor {
     }
 
     public <T> void execute(int what, Request<T> request, OnResponseListener<T> responseListener) {
-        request.onPreResponse(what, responseListener);
-        mExecutorService.execute(new RequestTask<>(request, mDelivery));
+        mExecutorService.execute(new RequestTask<>(request, new ListenerEntity<>(what, responseListener), mDelivery));
     }
 
     private static class RequestTask<T> implements Runnable {
 
-        private Request<T> request;
-        private Delivery mDelivery;
+        private final Request<T> request;
+        private final ListenerEntity<T> mListenerEntity;
+        private final Delivery mDelivery;
 
-        private RequestTask(Request<T> request, Delivery mDelivery) {
+        private RequestTask(Request<T> request, ListenerEntity<T> listenerEntity, Delivery mDelivery) {
             this.request = request;
+            this.mListenerEntity = listenerEntity;
             this.mDelivery = mDelivery;
         }
 
@@ -61,12 +66,8 @@ public enum AsyncRequestExecutor {
                 return;
             }
 
-            final int what = request.what();
-            final OnResponseListener<T> listener = request.responseListener();
-
             // start.
-            request.start();
-            Messenger.prepare(what, listener)
+            Messenger.prepare(mListenerEntity.what(), mListenerEntity.responseListener())
                     .start()
                     .post(mDelivery);
 
@@ -76,13 +77,12 @@ public enum AsyncRequestExecutor {
             if (request.isCanceled())
                 Logger.d(request.url() + " finish, but it's canceled.");
             else
-                Messenger.prepare(what, listener)
+                Messenger.prepare(mListenerEntity.what(), mListenerEntity.responseListener())
                         .response(response)
                         .post(mDelivery);
 
             // finish.
-            request.finish();
-            Messenger.prepare(what, listener)
+            Messenger.prepare(mListenerEntity.what(), mListenerEntity.responseListener())
                     .finish()
                     .post(mDelivery);
         }

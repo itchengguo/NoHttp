@@ -64,7 +64,7 @@ public class HttpConnection {
         Network network = null;
         String url = request.url();
         try {
-            if (!NetUtil.isNetworkAvailable(NoHttp.getContext()))
+            if (!NetUtil.isNetworkAvailable(CoreConfig.getContext()))
                 throw new NetworkError("The network is not available, please check the network. The requested url is: " + url);
 
             // MalformedURLException, IOException, ProtocolException, UnknownHostException, SocketTimeoutException
@@ -159,7 +159,7 @@ public class HttpConnection {
             headers.set(Headers.HEAD_KEY_CONTENT_LENGTH, Long.toString(request.getContentLength()));
 
         // Cookie.
-        headers.addCookie(new URI(url), NoHttp.getCookieManager());
+        headers.addCookie(new URI(url), CoreConfig.getInstance().getCookieManager());
         return mExecutor.execute(request);
     }
 
@@ -210,8 +210,7 @@ public class HttpConnection {
                 }
             }
 
-            redirectRequest = new BasicRequest(location, oldRequest.getRequestMethod()) {
-            };
+            redirectRequest = new BasicRequest(location, oldRequest.getRequestMethod()) {};
             redirectRequest.setRedirectHandler(oldRequest.getRedirectHandler());
             redirectRequest.setSSLSocketFactory(oldRequest.getSSLSocketFactory());
             redirectRequest.setHostnameVerifier(oldRequest.getHostnameVerifier());
@@ -232,7 +231,7 @@ public class HttpConnection {
     private Headers parseResponseHeaders(URI uri, int responseCode, Map<String, List<String>> responseHeaders) {
         // handle cookie
         try {
-            NoHttp.getCookieManager().put(uri, responseHeaders);
+            CoreConfig.getInstance().getCookieManager().put(uri, responseHeaders);
         } catch (IOException e) {
             Logger.e(e, "Save cookie filed: " + uri.toString() + ".");
         }

@@ -16,9 +16,8 @@
 package com.yanzhenjie.nohttp.error;
 
 /**
- * Created in 2016/2/26 19:14.
- *
- * @author Yan Zhenjie;
+ * <p>Storage cant be used.</p>
+ * Created by Yan Zhenjie on 2016/2/26.
  */
 public class StorageReadWriteError extends Exception {
 

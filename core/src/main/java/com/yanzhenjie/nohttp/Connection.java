@@ -22,9 +22,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 /**
- * Created in May 3, 2016 11:05:03 PM.
- *
- * @author Yan Zhenjie.
+ * Created by Yan Zhenjie on May 3, 2016.
  */
 public class Connection implements Closeable {
 

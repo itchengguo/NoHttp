@@ -19,11 +19,11 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import com.yanzhenjie.nohttp.Connection;
+import com.yanzhenjie.nohttp.CoreConfig;
 import com.yanzhenjie.nohttp.Headers;
 import com.yanzhenjie.nohttp.HttpConnection;
 import com.yanzhenjie.nohttp.Logger;
 import com.yanzhenjie.nohttp.NetworkExecutor;
-import com.yanzhenjie.nohttp.NoHttp;
 import com.yanzhenjie.nohttp.error.NetworkError;
 import com.yanzhenjie.nohttp.error.ServerError;
 import com.yanzhenjie.nohttp.error.StorageReadWriteError;
@@ -49,9 +49,8 @@ import java.net.UnknownHostException;
  * <p>
  * The network layer to download missions.
  * </p>
- * Created in Jul 31, 2015 9:11:55 AM.
  *
- * @author Yan Zhenjie.
+ * Created by Yan Zhenjie on Jul 31, 2015.
  */
 public class Downloader {
 
@@ -61,7 +60,7 @@ public class Downloader {
         this.mHttpConnection = new HttpConnection(executor);
     }
 
-    private void validateParam(DownloadRequest downloadRequest, DownloadListener downloadListener) {
+    private void validateParam(IDownloadRequest downloadRequest, DownloadListener downloadListener) {
         if (downloadRequest == null)
             throw new IllegalArgumentException("DownloadRequest == null.");
         if (downloadListener == null)
@@ -69,45 +68,92 @@ public class Downloader {
     }
 
     private void validateDevice(String savePathDir) throws Exception {
-        if (!NetUtil.isNetworkAvailable())
-            throw new NetworkError("Network is not available, please check network and permission: INTERNET, " +
-                    "ACCESS_WIFI_STATE, ACCESS_NETWORK_STATE.");
+        if (!NetUtil.isNetworkAvailable(CoreConfig.getContext()))
+            throw new NetworkError("Please check whether the network is available or network permissions: "
+                    + "ACCESS_WIFI_STATE, ACCESS_NETWORK_STATE.");
 
         if (!IOUtils.createFolder(savePathDir))
-            throw new StorageReadWriteError("SD isn't available, please check SD card and permission: " +
-                    "WRITE_EXTERNAL_STORAGE, and you must pay attention to Android6.0 RunTime Permissions: " +
-                    "https://github.com/yanzhenjie/AndPermission.");
+            throw new StorageReadWriteError("Folder creation failed, please check WRITE_EXTERNAL_STORAGE permissions or path: "
+                    + savePathDir);
     }
 
-    private long handleRange(File tempFile, DownloadRequest downloadRequest) {
+    private long handleRange(File tempFile, IDownloadRequest request) {
         if (tempFile.exists()) {
             if (tempFile.isDirectory())
                 IOUtils.delFileOrFolder(tempFile);
 
-            if (downloadRequest.isRange() && tempFile.exists()) {
+            if (request.isRange() && tempFile.exists()) {
                 long rangeSize = tempFile.length();
                 if (rangeSize > 0)
                     // 例如：从1024开始下载：Range:bytes=1024-。
-                    downloadRequest.setHeader("Range", "bytes=" + rangeSize + "-");
+                    request.setHeader("Range", "bytes=" + rangeSize + "-");
                 return rangeSize;
             } else {
-                downloadRequest.removeHeader("Range"); // Fix developer add.
+                request.removeHeader("Range"); // Fix developer add.
                 IOUtils.delFileOrFolder(tempFile);
             }
         }
         return 0;
     }
 
-    public void download(int what, DownloadRequest downloadRequest, DownloadListener downloadListener) {
-        validateParam(downloadRequest, downloadListener);
+    private Connection getConnectionRetry(IDownloadRequest downloadRequest) throws Exception {
+        // 连接服务器。
+        Connection connection = mHttpConnection.getConnection(downloadRequest);
+        Exception exception = connection.exception();
+        if (exception != null)
+            throw exception;
+
+        Headers responseHeaders = connection.responseHeaders();
+        int responseCode = responseHeaders.getResponseCode();
+
+        if (responseCode == 416) {
+            downloadRequest.removeHeader("Range");
+            return mHttpConnection.getConnection(downloadRequest);
+        }
+        return connection;
+    }
+
+    private String getRealFileName(IDownloadRequest request, String fileName, Headers responseHeaders) {
+        if (request.autoNameByHead()) {
+            String contentDisposition = responseHeaders.getContentDisposition();
+            if (!TextUtils.isEmpty(contentDisposition)) {
+                fileName = HeaderUtil.parseHeadValue(contentDisposition, "filename", null);
+                if (!TextUtils.isEmpty(fileName)) {
+                    try {
+                        fileName = URLDecoder.decode(fileName, request.getParamsEncoding());
+                    } catch (UnsupportedEncodingException e) {
+                        // Do nothing.
+                    }
+                    if (fileName.startsWith("\"") && fileName.endsWith("\"")) {
+                        fileName = fileName.substring(1, fileName.length() - 1);
+                    }
+                }
+            }
+
+            // From url.
+            if (TextUtils.isEmpty(fileName)) {
+                String tempUrl = request.url();
+                String[] slash = tempUrl.split("/");
+                fileName = slash[slash.length - 1];
+                int paramIndex = fileName.indexOf("?");
+                if (paramIndex > 0) {
+                    fileName = fileName.substring(0, paramIndex);
+                }
+            }
+        }
+        return fileName;
+    }
+
+    public void download(int what, IDownloadRequest request, DownloadListener downloadListener) {
+        validateParam(request, downloadListener);
 
         Connection connection = null;
         RandomAccessFile randomAccessFile = null;
-        String savePathDir = downloadRequest.getFileDir();
-        String fileName = downloadRequest.getFileName();
+        String savePathDir = request.getFileDir();
+        String fileName = request.getFileName();
         try {
             if (TextUtils.isEmpty(savePathDir))
-                savePathDir = NoHttp.getContext().getFilesDir().getAbsolutePath();
+                savePathDir = CoreConfig.getContext().getFilesDir().getAbsolutePath();
 
             validateDevice(savePathDir);
 
@@ -115,11 +161,11 @@ public class Downloader {
                 fileName = Long.toString(System.currentTimeMillis());
 
             File tempFile = new File(savePathDir, fileName + ".nohttp");
-            long rangeSize = handleRange(tempFile, downloadRequest);// 断点开始处。
+            long rangeSize = handleRange(tempFile, request);// 断点开始处。
 
 
             // 连接服务器。
-            connection = mHttpConnection.getConnection(downloadRequest);
+            connection = getConnectionRetry(request);
             Exception exception = connection.exception();
             if (exception != null)
                 throw exception;
@@ -128,52 +174,26 @@ public class Downloader {
             Headers responseHeaders = connection.responseHeaders();
             int responseCode = responseHeaders.getResponseCode();
 
-            // getList filename from server.
-            if (downloadRequest.autoNameByHead()) {
-                String contentDisposition = responseHeaders.getContentDisposition();
-                if (!TextUtils.isEmpty(contentDisposition)) {
-                    fileName = HeaderUtil.parseHeadValue(contentDisposition, "filename", null);
-                    if (!TextUtils.isEmpty(fileName)) {
-                        try {
-                            fileName = URLDecoder.decode(fileName, downloadRequest.getParamsEncoding());
-                        } catch (UnsupportedEncodingException e) {
-                            // Do nothing.
-                        }
-                        if (fileName.startsWith("\"") && fileName.endsWith("\"")) {
-                            fileName = fileName.substring(1, fileName.length() - 1);
-                        }
-                    }
-                }
-
-                // From url.
-                if (TextUtils.isEmpty(fileName)) {
-                    String tempUrl = downloadRequest.url();
-                    String[] slash = tempUrl.split("/");
-                    fileName = slash[slash.length - 1];
-                    int paramIndex = fileName.indexOf("?");
-                    if (paramIndex > 0) {
-                        fileName = fileName.substring(0, paramIndex);
-                    }
-                }
-            }
+            // Get filename from server.
+            fileName = getRealFileName(request, fileName, responseHeaders);
 
             InputStream serverStream = connection.serverStream();
             if (responseCode >= 400) {
-                ServerError error = new ServerError("Download failed, the server response code is " + responseCode +
-                        ": " + downloadRequest.url());
+                ServerError error = new ServerError("Download failed, the server response code is "
+                        + responseCode + ": " + request.url());
                 error.setErrorBody(IOUtils.toString(serverStream));
                 throw error;
             } else {
                 long contentLength;
                 // 文件总大小
                 if (responseCode == 206) {
-                    // Content-Range: bytes [文件块的开始字节]-[文件的总大小 - 1]/[文件的总大小]。
-                    String range = responseHeaders.getContentRange(); // Sample：Accept-Range:bytes 1024-2047/2048。
+                    // Content-Range:bytes [文件块的开始字节]-[文件的总大小 - 1]/[文件的总大小]。
+                    String range = responseHeaders.getContentRange(); // Sample：Content-Range:bytes 1024-2047/2048.
                     try {
                         contentLength = Long.parseLong(range.substring(range.indexOf('/') + 1));// 截取'/'之后的总大小。
                     } catch (Throwable e) {
-                        throw new ServerError("ResponseCode is 206, but content-Range error in Server HTTP header " +
-                                "information: " + range + ".");
+                        throw new ServerError("ResponseCode is 206, but Content-Range error in Server HTTP header: "
+                                + range + ".");
                     }
                 } else if (responseCode == 304) {
                     int httpContentLength = responseHeaders.getContentLength();
@@ -182,7 +202,7 @@ public class Downloader {
                     Logger.d("-------Download finish-------");
                     downloadListener.onFinish(what, savePathDir + File.separator + fileName);
                     return;
-                } else { // such as: 200.
+                } else { // Such as: 200.
                     rangeSize = 0L; // 服务器不支持Range。
                     contentLength = responseHeaders.getContentLength();// 直接下载。
                 }
@@ -190,7 +210,7 @@ public class Downloader {
                 // 验证文件已经存在。
                 File lastFile = new File(savePathDir, fileName);
                 if (lastFile.exists()) {
-                    if (downloadRequest.isDeleteOld())
+                    if (request.isDeleteOld())
                         IOUtils.delFileOrFolder(lastFile);
                     else {
                         downloadListener.onStart(what, true, lastFile.length(), responseHeaders, lastFile.length());
@@ -202,16 +222,17 @@ public class Downloader {
                 }
 
                 if (IOUtils.getDirSize(savePathDir) < contentLength)
-                    throw new StorageSpaceNotEnoughError("The folder is not enough space to save the downloaded file:" +
-                            " " + savePathDir + ".");
+                    throw new StorageSpaceNotEnoughError("The folder is not enough: " + savePathDir + ".");
 
                 // 需要重新下载，生成临时文件。
-                if (responseCode != 206 && !IOUtils.createNewFile(tempFile))
-                    throw new StorageReadWriteError("SD isn't available, please check SD card and permission: " +
-                            "WRITE_EXTERNAL_STORAGE, and you must pay attention to Android6.0 RunTime " +
-                            "Permissions: https://github.com/yanzhenjie/AndPermission.");
+                if (responseCode != 206) {
+                    File newTempFile = new File(savePathDir, fileName + ".nohttp");
+                    if (!IOUtils.createNewFile(newTempFile))
+                        throw new StorageReadWriteError("File creation failed, please check WRITE_EXTERNAL_STORAGE permissions"
+                                + " or path: " + newTempFile.getAbsolutePath());
+                }
 
-                if (downloadRequest.isCanceled()) {
+                if (request.isCanceled()) {
                     Log.w("NoHttpDownloader", "Download request is canceled.");
                     downloadListener.onCancel(what);
                     return;
@@ -235,7 +256,7 @@ public class Downloader {
                 long oldSpeed = 0;
 
                 while (((len = serverStream.read(buffer)) != -1)) {
-                    if (downloadRequest.isCanceled()) {
+                    if (request.isCanceled()) {
                         Log.i("NoHttpDownloader", "Download request is canceled.");
                         downloadListener.onCancel(what);
                         break;
@@ -251,9 +272,6 @@ public class Downloader {
                         long speed = speedCount * 1000 / time;
 
                         boolean speedChanged = oldSpeed != speed && time >= 300;
-
-                        Logger.i("speedCount: " + speedCount + "; time: " + time + "; speed: " + speed + "; changed: " +
-                                "" + speedChanged);
 
                         if (contentLength != 0) {
                             int progress = (int) (count * 100 / contentLength);
@@ -284,7 +302,7 @@ public class Downloader {
                         }
                     }
                 }
-                if (!downloadRequest.isCanceled()) {
+                if (!request.isCanceled()) {
                     //noinspection ResultOfMethodCallIgnored
                     tempFile.renameTo(lastFile);
                     Logger.d("-------Download finish-------");
@@ -303,15 +321,14 @@ public class Downloader {
         } catch (IOException e) {
             Exception newException = e;
             if (!IOUtils.canWrite(savePathDir))
-                newException = new StorageReadWriteError("This folder cannot be written to the file: " + savePathDir
-                        + ".");
+                newException = new StorageReadWriteError("File creation failed, please check WRITE_EXTERNAL_STORAGE permissions"
+                        + " or path: " + savePathDir);
             else if (IOUtils.getDirSize(savePathDir) < 1024)
-                newException = new StorageSpaceNotEnoughError("The folder is not enough space to save the downloaded " +
-                        "file: " + savePathDir + ".");
+                newException = new StorageSpaceNotEnoughError("The folder is not enough: " + savePathDir + ".");
             Logger.e(newException);
             downloadListener.onDownloadError(what, newException);
         } catch (Exception e) {// NetworkError | ServerError | StorageCantWriteError | StorageSpaceNotEnoughError
-            if (!NetUtil.isNetworkAvailable())
+            if (!NetUtil.isNetworkAvailable(CoreConfig.getContext()))
                 e = new NetworkError("The network is not available.");
             Logger.e(e);
             downloadListener.onDownloadError(what, e);

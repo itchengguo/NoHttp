@@ -26,9 +26,7 @@ import org.json.JSONException;
 
 /**
  * <p>CacheStore entity class.</p>
- * Created in Jan 10, 2016 12:43:10 AM.
- *
- * @author Yan Zhenjie;
+ * Created by Yan Zhenjie on Jan 10, 2016.
  */
 public class CacheEntity implements BasicEntity {
 

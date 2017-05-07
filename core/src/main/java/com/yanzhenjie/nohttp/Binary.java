@@ -24,7 +24,7 @@ import java.io.OutputStream;
  * All the methods are called in Son thread.</p>
  * Created in Oct 12, 2015 4:44:07 PM.
  *
- * @author Yan Zhenjie.
+ * Created by Yan Zhenjie on Oct 12, 2015.
  */
 public interface Binary extends Cancelable {
 

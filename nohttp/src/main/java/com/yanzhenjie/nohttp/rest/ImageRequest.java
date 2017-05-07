@@ -19,13 +19,17 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.widget.ImageView;
 
+import com.yanzhenjie.nohttp.Headers;
+import com.yanzhenjie.nohttp.Logger;
+import com.yanzhenjie.nohttp.RequestMethod;
+
 import java.util.Locale;
 
 /**
  * <p>Image request parameter.</p>
  * Created in Oct 17, 2015 12:17:57 PM.
  *
- * @author Yan Zhenjie.
+ * Created by Yan Zhenjie on Oct 17, 2015.
  */
 public class ImageRequest extends RestRequest<Bitmap> {
 

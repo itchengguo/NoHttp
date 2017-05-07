@@ -43,9 +43,7 @@ import java.util.Set;
  * <p>
  * {@link Headers} The default implementation.
  * </p>
- * Created in Jan 10, 2016 2:37:06 PM.
- *
- * @author Yan Zhenjie.
+ * Created by Yan Zhenjie on Jan 10, 2016.
  */
 public class HttpHeaders extends TreeMultiValueMap<String, String> implements Headers {
 

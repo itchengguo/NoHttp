@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Yan Zhenjie
+ * Copyright © Yan Zhenjie
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,30 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.yanzhenjie.nohttp.able;
-
-import java.util.concurrent.BlockingQueue;
+package com.yanzhenjie.nohttp.download;
 
 /**
- * <p>Queue interface.</p>
- * Created in Nov 12, 2015 5:59:29 PM.
- *
- * @author Yan Zhenjie;
+ * Created by Yan Zhenjie on 2017/5/7.
  */
-public interface Queueable<T> {
+public class ListenerEntity {
 
-    /**
-     * Set the request in the queue.
-     *
-     * @param queue queue.
-     */
-    void setQueue(BlockingQueue<T> queue);
+    private final int what;
+    private final DownloadListener downloadListener;
 
-    /**
-     * In the queue?
-     *
-     * @return true: in the queue, false: not in the queue.
-     */
-    boolean inQueue();
+    public ListenerEntity(int what, DownloadListener downloadListener) {
+        this.what = what;
+        this.downloadListener = downloadListener;
+    }
 
+    public int what() {
+        return what;
+    }
+
+    public DownloadListener downloadListener() {
+        return downloadListener;
+    }
 }

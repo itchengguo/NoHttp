@@ -21,11 +21,9 @@ import com.yanzhenjie.nohttp.IBasicRequest;
  * <p>
  * Download task request interface.
  * </p>
- * Created in Oct 21, 2015 11:09:04 AM.
- *
- * @author Yan Zhenjie.
+ * Created by Yan Zhenjie on Oct 21, 2015.
  */
-public interface DownloadRequest extends IBasicRequest {
+public interface IDownloadRequest extends IBasicRequest {
 
     /**
      * Also didn't download to start download again.

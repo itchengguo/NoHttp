@@ -15,25 +15,23 @@
  */
 package com.yanzhenjie.nohttp.rest;
 
+import com.yanzhenjie.nohttp.Priority;
+import com.yanzhenjie.nohttp.RequestMethod;
+
 /**
  * <p>
  * The realization method of the parameters.
  * </p>
- * Created in Oct 20, 2015 4:24:27 PM.
+ * <p>
+ * Created by Yan Zhenjie on Oct 20, 2015.
  *
- * @param <T> a generics, regulated the analytic results of the Request.It should be with the {@link Response},
- *            {@link OnResponseListener}.
+ * @param <Result> a generics, regulated the analytic results of the Request.It should be with the
+ *                 {@link Response}, {@link OnResponseListener}.
  */
-public abstract class RestRequest<T> extends ProtocolRequest<T> implements Request<T> {
+public abstract class RestRequest<Result> extends ProtocolRequest<Result> implements Request<Result> {
 
-    /**
-     * The callback mark.
-     */
-    private int what;
-    /**
-     * The request of the listener.
-     */
-    private OnResponseListener<T> responseListener;
+    private int sequence;
+    private Priority priority;
 
     /**
      * Create a request, RequestMethod is {@link RequestMethod#GET}.
@@ -55,18 +53,31 @@ public abstract class RestRequest<T> extends ProtocolRequest<T> implements Reque
     }
 
     @Override
-    public void onPreResponse(int what, OnResponseListener<T> responseListener) {
-        this.what = what;
-        this.responseListener = responseListener;
+    public Request setPriority(Priority priority) {
+        this.priority = priority;
+        return this;
     }
 
     @Override
-    public int what() {
-        return what;
+    public Request setSequence(int sequence) {
+        this.sequence = sequence;
+        return this;
     }
 
     @Override
-    public OnResponseListener<T> responseListener() {
-        return responseListener;
+    public Priority getPriority() {
+        return this.priority;
+    }
+
+    @Override
+    public int getSequence() {
+        return this.sequence;
+    }
+
+    @Override
+    public int compareTo(Request another) {
+        final Priority me = getPriority();
+        final Priority it = another.getPriority();
+        return me == it ? getSequence() - another.getSequence() : it.ordinal() - me.ordinal();
     }
 }

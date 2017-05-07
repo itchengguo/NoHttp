@@ -27,9 +27,7 @@ import java.util.List;
 
 /**
  * <p>Cookie database manager.</p>
- * Created in Dec 18, 2015 7:01:31 PM.
- *
- * @author Yan Zhenjie.
+ * Created by Yan Zhenjie on Dec 18, 2015.
  */
 public class CookieEntityDao extends BaseDao<CookieEntity> {
 

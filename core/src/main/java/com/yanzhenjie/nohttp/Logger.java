@@ -18,9 +18,7 @@ package com.yanzhenjie.nohttp;
 import java.lang.reflect.Method;
 
 /**
- * Created in Jul 28, 2015 7:32:05 PM.
- *
- * @author Yan Zhenjie.
+ * Created by Yan Zhenjie on Jul 28, 2015.
  */
 public class Logger {
 
@@ -34,7 +32,7 @@ public class Logger {
     /**
      * Library debug tag.
      */
-    private static String STag = "NoHttp";
+    private static String STag = "Core";
     /**
      * Library debug sign.
      */
@@ -50,7 +48,7 @@ public class Logger {
     }
 
     /**
-     * Open debug mode of {@code NoHttp}.
+     * Open debug mode of {@code Core}.
      *
      * @param debug true open, false close.
      */

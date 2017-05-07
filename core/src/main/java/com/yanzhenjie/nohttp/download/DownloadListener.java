@@ -26,9 +26,7 @@ import com.yanzhenjie.nohttp.error.URLError;
 
 /**
  * <p>The download process monitor.</p>
- * Created in Jul 31, 2015 9:12:55 AM;
- *
- * @author Yan Zhenjie.
+ * Created by Yan Zhenjie on Jul 31, 2015.
  */
 public interface DownloadListener {
 

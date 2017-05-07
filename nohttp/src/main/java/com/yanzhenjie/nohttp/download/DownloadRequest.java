@@ -13,36 +13,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.yanzhenjie.nohttp.rest;
+package com.yanzhenjie.nohttp.download;
 
 import com.yanzhenjie.nohttp.Priority;
 
 /**
- * <p>
- * Extended {@link IProtocolRequest} class, to increase the method of recording response.
- * </p>
- * Created in Oct 16, 2015 8:22:06 PM.
- *
- * @author Yan Zhenjie.
+ * Created by Yan Zhenjie on 2017/5/4.
  */
-public interface Request<Result> extends IProtocolRequest<Result>, Comparable<Request> {
+public interface DownloadRequest extends IDownloadRequest, Comparable<DownloadRequest> {
 
     /**
      * Set the priority of the request object. The default priority is {@link Priority#DEFAULT}.
      *
      * @param priority {@link Priority}.
-     * @return {@link Request}.
+     * @return {@link DownloadRequest}.
      */
-    Request setPriority(Priority priority);
+    DownloadRequest setPriority(Priority priority);
 
     /**
      * Set the sequence in the queue, under the condition of two requests as priority, {@code left.sequence-right
      * .sequence} decision to order.
      *
      * @param sequence sequence code.
-     * @return {@link Request}.
+     * @return {@link DownloadRequest}.
      */
-    Request setSequence(int sequence);
+    DownloadRequest setSequence(int sequence);
 
     /**
      * Get the priority of the request object.
@@ -58,4 +53,5 @@ public interface Request<Result> extends IProtocolRequest<Result>, Comparable<Re
      * @return sequence code.
      */
     int getSequence();
+
 }

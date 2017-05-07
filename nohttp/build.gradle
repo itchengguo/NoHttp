@@ -9,3 +9,8 @@ android {
         targetSdkVersion rootProject.ext.android.targetSdkVersion
     }
 }
+
+dependencies {
+    compile project(':core')
+    // compile rootProject.ext.dependencies.nohttp
+}

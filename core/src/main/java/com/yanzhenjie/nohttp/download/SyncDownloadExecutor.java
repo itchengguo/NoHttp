@@ -15,9 +15,10 @@
  */
 package com.yanzhenjie.nohttp.download;
 
-import com.yanzhenjie.nohttp.NoHttp;
+import com.yanzhenjie.nohttp.CoreConfig;
 
 /**
+ * <p>Download executor.</p>
  * Created by Yan Zhenjie on 2016/10/12.
  */
 public enum SyncDownloadExecutor {
@@ -27,17 +28,19 @@ public enum SyncDownloadExecutor {
     private Downloader mDownloader;
 
     SyncDownloadExecutor() {
-        mDownloader = new Downloader(NoHttp.getNetworkExecutor());
+        mDownloader = new Downloader(CoreConfig.getInstance().getNetworkExecutor());
     }
 
     /**
      * Start a download.
      *
      * @param what            what.
-     * @param downloadRequest {@link DownloadRequest}.
+     * @param downloadRequest {@link IDownloadRequest}.
      * @param listener        accept various download status callback..
      */
-    public void execute(int what, DownloadRequest downloadRequest, DownloadListener listener) {
+    public void execute(int what, IDownloadRequest downloadRequest, DownloadListener listener) {
+        downloadRequest.start();
         mDownloader.download(what, downloadRequest, listener);
+        downloadRequest.finish();
     }
 }

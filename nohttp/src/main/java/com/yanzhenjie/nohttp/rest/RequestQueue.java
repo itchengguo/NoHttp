@@ -19,8 +19,9 @@ import com.yanzhenjie.nohttp.Delivery;
 import com.yanzhenjie.nohttp.HandlerDelivery;
 import com.yanzhenjie.nohttp.Logger;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.PriorityBlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -34,14 +35,8 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class RequestQueue {
 
-    private AtomicInteger mInteger = new AtomicInteger();
-    /**
-     * Save un finish task.
-     */
-    private final BlockingQueue<Request<?>> mUnFinishQueue = new LinkedBlockingDeque<>();
-    /**
-     * Save request task.
-     */
+    private final AtomicInteger mInteger = new AtomicInteger();
+    private final Map<Request, ListenerEntity<?>> mListenerEntityMap = new HashMap<>();
     private final BlockingQueue<Request<?>> mRequestQueue = new PriorityBlockingQueue<>();
 
     /**
@@ -72,7 +67,7 @@ public class RequestQueue {
     public void start() {
         stop();
         for (int i = 0; i < mDispatchers.length; i++) {
-            RequestDispatcher networkDispatcher = new RequestDispatcher(mUnFinishQueue, mRequestQueue, mDelivery);
+            RequestDispatcher networkDispatcher = new RequestDispatcher(mListenerEntityMap, mRequestQueue, mDelivery);
             mDispatchers[i] = networkDispatcher;
             networkDispatcher.start();
         }
@@ -90,14 +85,11 @@ public class RequestQueue {
      * @param <T>              {@link T}.
      */
     public <T> void add(int what, Request<T> request, OnResponseListener<T> responseListener) {
-        if (request.inQueue())
+        if (mListenerEntityMap.get(request) != null)
             Logger.w("This request has been in the queue");
         else {
-            request.onPreResponse(what, responseListener);
-
-            request.setQueue(mUnFinishQueue);
             request.setSequence(mInteger.incrementAndGet());
-            mUnFinishQueue.add(request);
+            mListenerEntityMap.put(request, new ListenerEntity<>(what, responseListener));
             mRequestQueue.add(request);
         }
     }
@@ -117,7 +109,7 @@ public class RequestQueue {
      * @return size.
      */
     public int unFinishSize() {
-        return mUnFinishQueue.size();
+        return mListenerEntityMap.size();
     }
 
     /**
@@ -135,8 +127,8 @@ public class RequestQueue {
      * @param sign this sign will be the same as sign's Request, and if it is the same, then cancel the task.
      */
     public void cancelBySign(Object sign) {
-        synchronized (mUnFinishQueue) {
-            for (Request<?> request : mUnFinishQueue)
+        synchronized (mListenerEntityMap) {
+            for (Request request : mListenerEntityMap.keySet())
                 request.cancelBySign(sign);
         }
     }
@@ -145,8 +137,8 @@ public class RequestQueue {
      * Cancel all requests, Already in the execution of the request can't use this method
      */
     public void cancelAll() {
-        synchronized (mUnFinishQueue) {
-            for (Request<?> request : mUnFinishQueue)
+        synchronized (mListenerEntityMap) {
+            for (Request request : mListenerEntityMap.keySet())
                 request.cancel();
         }
     }

@@ -16,9 +16,7 @@
 package com.yanzhenjie.nohttp;
 
 /**
- * Created in Jan 31, 2016 8:45:37 PM.
- *
- * @author Yan Zhenjie.
+ * Created by Yan Zhenjie on Jan 31, 2016.
  */
 public interface RedirectHandler {
 
@@ -32,8 +30,8 @@ public interface RedirectHandler {
 
     /**
      * Whether to allow the redirection, if not redirect will not be {@code #onRedirect(Headers)} callback method, at
-     * the same time will ban NoHttp automatic redirection.If allowed to redirect, first
-     * call {@code #onRedirect(Headers)} method, if {@code #onRedirect(Headers)} method returns null, execute NoHttp
+     * the same time will ban Core automatic redirection.If allowed to redirect, first
+     * call {@code #onRedirect(Headers)} method, if {@code #onRedirect(Headers)} method returns null, execute Core
      * default redirect.
      *
      * @param responseHeaders the service side head accordingly.

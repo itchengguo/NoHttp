@@ -16,9 +16,7 @@
 package com.yanzhenjie.nohttp;
 
 /**
- * Created in Jan 29, 2016 10:56:37 AM.
- *
- * @author Yan Zhenjie.
+ * Created by Yan Zhenjie on Jan 29, 2016.
  */
 public interface OnUploadListener {
 

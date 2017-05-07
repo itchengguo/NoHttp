@@ -29,9 +29,7 @@ import java.util.Map;
  * <p>
  * Http header.
  * </p>
- * Created in Jan 10, 2016 2:29:42 PM.
- *
- * @author Yan Zhenjie.
+ * Created by Yan Zhenjie on Jan 10, 2016.
  */
 public interface Headers extends MultiValueMap<String, String> {
 

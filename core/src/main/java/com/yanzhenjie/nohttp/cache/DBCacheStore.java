@@ -27,9 +27,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * <p>Http cache interface implementation.</p>
- * Created in Jan 10, 2016 12:45:34 AM.
- *
- * @author Yan Zhenjie;
+ * Created by Yan Zhenjie on Jan 10, 2016.
  */
 public class DBCacheStore implements CacheStore<CacheEntity> {
 
@@ -125,7 +123,7 @@ public class DBCacheStore implements CacheStore<CacheEntity> {
         private boolean mEnable = true;
 
         private Builder(Context context) {
-            mContext = context;
+            mContext = context.getApplicationContext();
         }
 
         public Builder enable(boolean enable) {

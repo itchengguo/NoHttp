@@ -19,9 +19,7 @@ package com.yanzhenjie.nohttp;
  * <p>
  * HTTP request method.
  * </p>
- * Created in Oct 10, 2015 8:00:48 PM.
- *
- * @author Yan Zhenjie.
+ * Created by Yan Zhenjie on Oct 10, 2015.
  */
 public enum RequestMethod {
 

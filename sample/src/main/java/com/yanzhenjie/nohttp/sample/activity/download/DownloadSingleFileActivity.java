@@ -35,7 +35,7 @@ import com.yanzhenjie.nohttp.Headers;
 import com.yanzhenjie.nohttp.Logger;
 import com.yanzhenjie.nohttp.NoHttp;
 import com.yanzhenjie.nohttp.download.DownloadListener;
-import com.yanzhenjie.nohttp.download.DownloadRequest;
+import com.yanzhenjie.nohttp.download.IDownloadRequest;
 import com.yanzhenjie.nohttp.error.NetworkError;
 import com.yanzhenjie.nohttp.error.ServerError;
 import com.yanzhenjie.nohttp.error.StorageReadWriteError;
@@ -80,7 +80,7 @@ public class DownloadSingleFileActivity extends BaseActivity {
     /**
      * 下载请求.
      */
-    private DownloadRequest mDownloadRequest;
+    private IDownloadRequest mDownloadRequest;
 
     @Override
     protected void onActivityCreate(Bundle savedInstanceState) {

@@ -17,13 +17,11 @@ package com.yanzhenjie.nohttp.rest;
 
 /**
  * <p>
- * NoHttp caching pattern, the default value is {@link CacheMode#DEFAULT}, other value may be
+ * Core caching pattern, the default value is {@link CacheMode#DEFAULT}, other value may be
  * {@link CacheMode#REQUEST_NETWORK_FAILED_READ_CACHE}, {@link CacheMode#ONLY_READ_CACHE},
  * {@link CacheMode#ONLY_REQUEST_NETWORK}, {@link CacheMode#NONE_CACHE_REQUEST_NETWORK}.
  * </p>
- * Created in 2016/3/20 23:17.
- *
- * @author Yan Zhenjie.
+ * Created by Yan Zhenjie on 2016/3/20.
  */
 public enum CacheMode {
 

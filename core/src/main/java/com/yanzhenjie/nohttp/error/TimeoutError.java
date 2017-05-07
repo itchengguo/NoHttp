@@ -17,9 +17,7 @@ package com.yanzhenjie.nohttp.error;
 
 /**
  * <p>Request connection timeout.</p>
- * Created in 2016/2/25 10:17.
- *
- * @author Yan Zhenjie.
+ * Created by Yan Zhenjie on 2016/2/25.
  */
 public class TimeoutError extends Exception {
 

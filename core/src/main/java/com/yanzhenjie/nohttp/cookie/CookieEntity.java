@@ -25,9 +25,7 @@ import java.net.URI;
 
 /**
  * <p>Cookie entity.</p>
- * Created in Dec 17, 2015 7:21:16 PM.
- *
- * @author Yan Zhenjie.
+ * Created by Yan Zhenjie on Dec 17, 2015.
  */
 class CookieEntity implements BasicEntity {
 

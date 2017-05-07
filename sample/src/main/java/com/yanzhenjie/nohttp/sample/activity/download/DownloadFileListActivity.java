@@ -34,7 +34,7 @@ import com.yanzhenjie.nohttp.Headers;
 import com.yanzhenjie.nohttp.Logger;
 import com.yanzhenjie.nohttp.NoHttp;
 import com.yanzhenjie.nohttp.download.DownloadListener;
-import com.yanzhenjie.nohttp.download.DownloadRequest;
+import com.yanzhenjie.nohttp.download.IDownloadRequest;
 import com.yanzhenjie.nohttp.error.NetworkError;
 import com.yanzhenjie.nohttp.error.ServerError;
 import com.yanzhenjie.nohttp.error.StorageReadWriteError;
@@ -77,7 +77,7 @@ public class DownloadFileListActivity extends BaseActivity {
     /**
      * 下载任务列表。
      */
-    private List<DownloadRequest> mDownloadRequests;
+    private List<IDownloadRequest> mDownloadRequests;
 
     @Override
     protected void onActivityCreate(Bundle savedInstanceState) {
@@ -117,7 +117,7 @@ public class DownloadFileListActivity extends BaseActivity {
             // fileName 文件名。
             // isRange 是否断点续传下载。
             // isDeleteOld 在指定的文件夹发现同名的文件是否删除后重新下载，true则删除重新下载，false则直接通知下载成功。
-            DownloadRequest downloadRequest = NoHttp.createDownloadRequest(Constants.URL_DOWNLOADS[i], AppConfig
+            IDownloadRequest downloadRequest = NoHttp.createDownloadRequest(Constants.URL_DOWNLOADS[i], AppConfig
                     .getInstance().APP_PATH_ROOT, "nohttp_list" + i + ".apk", true, true);
             mDownloadRequests.add(downloadRequest);
         }
@@ -302,7 +302,7 @@ public class DownloadFileListActivity extends BaseActivity {
 
     @Override
     protected void onDestroy() {
-        for (DownloadRequest downloadRequest : mDownloadRequests) {
+        for (IDownloadRequest downloadRequest : mDownloadRequests) {
             downloadRequest.cancel();
         }
         super.onDestroy();

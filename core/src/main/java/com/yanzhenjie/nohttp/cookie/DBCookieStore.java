@@ -34,9 +34,8 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
- * Created in Dec 17, 2015 7:20:52 PM.
- *
- * @author Yan Zhenjie.
+ * <p>Default CookieStore.</p>
+ * Created by Yan Zhenjie on Dec 17, 2015.
  */
 public class DBCookieStore implements CookieStore {
 
@@ -289,7 +288,7 @@ public class DBCookieStore implements CookieStore {
         private boolean enable = true;
 
         private Builder(Context context) {
-            this.mContext = context;
+            this.mContext = context.getApplicationContext();
         }
 
         public Builder listener(CookieStoreListener listener) {

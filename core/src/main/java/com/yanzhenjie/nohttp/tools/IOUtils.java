@@ -19,6 +19,8 @@ import android.os.Build;
 import android.os.StatFs;
 import android.text.TextUtils;
 
+import com.yanzhenjie.nohttp.Logger;
+
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
@@ -43,9 +45,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created in 2016/4/12 21:21.
- *
- * @author Yan Zhenjie.
+ * Created by Yan Zhenjie on 2016/4/12.
  */
 public class IOUtils {
 

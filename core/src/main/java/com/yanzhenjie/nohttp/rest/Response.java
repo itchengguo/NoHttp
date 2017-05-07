@@ -24,12 +24,13 @@ package com.yanzhenjie.nohttp.rest;
  * @author Yan Zhenjie.
  */
 
+import com.yanzhenjie.nohttp.Headers;
+
 /**
  * <p>Http response, Including header information and response packets.</p>
- * Created in Oct 15, 2015 8:55:37 PM.
+ * Created by Yan Zhenjie on Oct 15, 2015.
  *
- * @param <T> The request data type, it should be with the {@link Request}, {@link OnResponseListener}.
- * @author Yan Zhenjie.
+ * @param <T> The request data type, it should be with the {@link IProtocolRequest}.
  */
 public interface Response<T> {
 

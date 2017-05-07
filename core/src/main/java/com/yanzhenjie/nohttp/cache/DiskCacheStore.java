@@ -33,7 +33,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * <p>You must remember to check the runtime permissions.</p>
- * Created by Yan Zhenjie on 2016/10/15.
+ * Created by Yan Zhenjie on Jan 10, 2016.
  */
 public class DiskCacheStore implements CacheStore<CacheEntity> {
 
@@ -167,7 +167,7 @@ public class DiskCacheStore implements CacheStore<CacheEntity> {
         private File mCacheDirectory;
 
         private Builder(Context context) {
-            this.mContext = context;
+            this.mContext = context.getApplicationContext();
             this.mCacheDirectory = mContext.getCacheDir();
         }
 

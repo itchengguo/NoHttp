@@ -24,9 +24,7 @@ import java.io.InputStream;
  * A default implementation of Binary.
  * All the methods are called in Son thread.
  * </p>
- * Created in Oct 17, 2015 12:40:54 PM.
- *
- * @author Yan Zhenjie.
+ * Created by Yan Zhenjie on Oct 17, 2015.
  */
 public class ByteArrayBinary extends BasicBinary {
 

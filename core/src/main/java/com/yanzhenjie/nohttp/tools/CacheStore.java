@@ -17,9 +17,7 @@ package com.yanzhenjie.nohttp.tools;
 
 /**
  * <p>CacheStore interface.</p>
- * Created in Dec 14, 2015 5:52:41 PM.
- *
- * @author Yan Zhenjie;
+ * Created by Yan Zhenjie on Dec 14, 2015.
  */
 public interface CacheStore<T> {
 

@@ -35,9 +35,7 @@ import java.util.regex.Pattern;
  * <p>
  * Check the network utility class.
  * </p>
- * Created in Jul 31, 2015 1:19:47 PM.
- *
- * @author Yan Zhenjie.
+ * Created by Yan Zhenjie on Jul 31, 2015.
  */
 public class NetUtil {
 

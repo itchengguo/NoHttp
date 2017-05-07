@@ -17,9 +17,7 @@ package com.yanzhenjie.nohttp.error;
 
 /**
  * <p>The target host not found.</p>
- * Created in 2016/2/25 10:49.
- *
- * @author Yan Zhenjie.
+ * Created by Yan Zhenjie on 2016/2/25.
  */
 public class UnKnownHostError extends Exception {
 

@@ -21,9 +21,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 /**
  * <p>General field class.</p>
- * Created in Jan 11, 2016 12:46:38 PM.
- *
- * @author Yan Zhenjie.
+ * Created by Yan Zhenjie on Jan 11, 2016.
  */
 public abstract class BasicSQLHelper extends SQLiteOpenHelper {
 

@@ -20,9 +20,7 @@ import java.util.Locale;
 import java.util.Map;
 
 /**
- * Created in Jan 27, 2016 2:54:13 PM.
- *
- * @author Yan Zhenjie.
+ * Created by Yan Zhenjie on Jan 27, 2016.
  */
 public class LruCache<K, V> {
     private final LinkedHashMap<K, V> map;

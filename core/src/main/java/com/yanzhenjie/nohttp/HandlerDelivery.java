@@ -20,9 +20,7 @@ import android.os.Looper;
 
 /**
  * <p>Poster.</p>
- * Created on 2016/6/7.
- *
- * @author Yan Zhenjie.
+ * Created by Yan Zhenjie on 2016/6/7.
  */
 public final class HandlerDelivery implements Delivery {
 

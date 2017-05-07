@@ -16,9 +16,8 @@
 package com.yanzhenjie.nohttp.tools;
 
 /**
+ * <p>AndroidVersion.</p>
  * Created by Yan Zhenjie on 2016/3/17.
- *
- * @author Yan Zhenjie.
  */
 public class AndroidVersion {
 

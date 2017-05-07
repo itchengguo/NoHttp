@@ -15,7 +15,10 @@
  */
 package com.yanzhenjie.nohttp.rest;
 
+import com.yanzhenjie.nohttp.CoreConfig;
+
 /**
+ * <p>Request executor.</p>
  * Created by Yan Zhenjie on 2016/10/12.
  */
 public enum SyncRequestExecutor {
@@ -25,7 +28,8 @@ public enum SyncRequestExecutor {
     private RestProtocol mRestProtocol;
 
     SyncRequestExecutor() {
-        mRestProtocol = new RestProtocol(NoHttp.getCacheStore(), NoHttp.getNetworkExecutor());
+        mRestProtocol = new RestProtocol(CoreConfig.getInstance().getCacheStore(),
+                CoreConfig.getInstance().getNetworkExecutor());
     }
 
     /**
@@ -36,6 +40,10 @@ public enum SyncRequestExecutor {
      * @return {@link Response}.
      */
     public <T> Response<T> execute(IProtocolRequest<T> request) {
-        return mRestProtocol.request(request);
+        request.start();
+        Response<T> response = mRestProtocol.request(request);
+        request.finish();
+        return response;
+
     }
 }

@@ -16,9 +16,8 @@
 package com.yanzhenjie.nohttp.error;
 
 /**
- * Created in 2016/4/17 22:40.
- *
- * @author Yan Zhenjie.
+ * <p>Server error.</p>
+ * Created by Yan Zhenjie on 2016/4/17.
  */
 public class ServerError extends Exception {
 

@@ -22,9 +22,7 @@ import com.yanzhenjie.nohttp.db.BasicSQLHelper;
 
 /**
  * <p>CacheStore database operation class.</p>
- * Created in Jan 10, 2016 12:39:15 AM.
- *
- * @author Yan Zhenjie;
+ * Created by Yan Zhenjie on Jan 10, 2016.
  */
 class CacheSQLHelper extends BasicSQLHelper {
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Yan Zhenjie
+ * Copyright © Yan Zhenjie
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,36 +13,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.yanzhenjie.nohttp.rest;
+package com.yanzhenjie.nohttp.able;
 
 import com.yanzhenjie.nohttp.Priority;
 
 /**
- * <p>
- * Extended {@link IProtocolRequest} class, to increase the method of recording response.
- * </p>
- * Created in Oct 16, 2015 8:22:06 PM.
- *
- * @author Yan Zhenjie.
+ * Created by Yan Zhenjie on 2017/5/7.
  */
-public interface Request<Result> extends IProtocolRequest<Result>, Comparable<Request> {
+public interface Priorityable<Entity> {
 
     /**
      * Set the priority of the request object. The default priority is {@link Priority#DEFAULT}.
      *
      * @param priority {@link Priority}.
-     * @return {@link Request}.
+     * @return {@link Entity}.
      */
-    Request setPriority(Priority priority);
+    Entity setPriority(Priority priority);
 
     /**
      * Set the sequence in the queue, under the condition of two requests as priority, {@code left.sequence-right
      * .sequence} decision to order.
      *
      * @param sequence sequence code.
-     * @return {@link Request}.
+     * @return {@link Entity}.
      */
-    Request setSequence(int sequence);
+    Entity setSequence(int sequence);
 
     /**
      * Get the priority of the request object.
@@ -58,4 +53,5 @@ public interface Request<Result> extends IProtocolRequest<Result>, Comparable<Re
      * @return sequence code.
      */
     int getSequence();
+
 }

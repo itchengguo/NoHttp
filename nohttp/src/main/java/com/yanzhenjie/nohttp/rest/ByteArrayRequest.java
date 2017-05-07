@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Yan Zhenjie
+ * Copyright © Yan Zhenjie. All Rights Reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,29 +15,25 @@
  */
 package com.yanzhenjie.nohttp.rest;
 
-import org.json.JSONArray;
+import com.yanzhenjie.nohttp.Headers;
+import com.yanzhenjie.nohttp.RequestMethod;
 
 /**
- * <p>JsonArray is returned by the server data, using the request object.</p>
- * Created in Jan 19, 2016 3:32:28 PM.
- *
- * @author Yan Zhenjie.
+ * <p>ByteArray.</p>
+ * Created by Yan Zhenjie on 2016/8/20.
  */
-public class JsonArrayRequest extends RestRequest<JSONArray> {
+public class ByteArrayRequest extends RestRequest<byte[]> {
 
-    public JsonArrayRequest(String url) {
+    public ByteArrayRequest(String url) {
         this(url, RequestMethod.GET);
     }
 
-    public JsonArrayRequest(String url, RequestMethod requestMethod) {
+    public ByteArrayRequest(String url, RequestMethod requestMethod) {
         super(url, requestMethod);
-        setAccept(Headers.HEAD_VALUE_ACCEPT_APPLICATION_JSON);
     }
 
     @Override
-    public JSONArray parseResponse(Headers responseHeaders, byte[] responseBody) throws Exception {
-        String jsonStr = StringRequest.parseResponseString(responseHeaders, responseBody);
-        return new JSONArray(jsonStr);
+    public byte[] parseResponse(Headers responseHeaders, byte[] responseBody) throws Exception {
+        return new byte[0];
     }
-
 }

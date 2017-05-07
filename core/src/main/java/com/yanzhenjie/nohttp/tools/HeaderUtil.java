@@ -27,9 +27,7 @@ import java.util.StringTokenizer;
 import java.util.TimeZone;
 
 /**
- * Created on 2016/6/21.
- *
- * @author Yan Zhenjie.
+ * Created by Yan Zhenjie on 2016/6/21.
  */
 public class HeaderUtil {
 

@@ -15,10 +15,16 @@
  */
 package com.yanzhenjie.nohttp.rest;
 
+import com.yanzhenjie.nohttp.Headers;
+import com.yanzhenjie.nohttp.RequestMethod;
+import com.yanzhenjie.nohttp.tools.HeaderUtil;
+import com.yanzhenjie.nohttp.tools.IOUtils;
+
 /**
- * Created in Jul 28, 2015 7:33:52 PM.
- *
- * @author Yan Zhenjie.
+ * <p>
+ * StringRequest.
+ * </p>
+ * Created by Yan Zhenjie on Jul 28, 2015.
  */
 public class StringRequest extends RestRequest<String> {
 

@@ -25,13 +25,12 @@ import java.util.List;
 
 /**
  * <p>Database management generic class, has realized the basic functions, inheritance of the subclass only need to
- * implement {@link #replace(BasicEntity)}, {@link #getList(String)} and
- * {@link #getTableName()}.</p>
- * Created in Jan 10, 2016 8:18:28 PM.
+ * implement {@link #replace(BasicEntity)}, {@link #getList(String)} and  {@link #getTableName()}.</p>
+ * Created by Yan Zhenjie on Jan 10, 2016.
  *
- * @author Yan Zhenjie.
+ * @param <Entity> entity.
  */
-public abstract class BaseDao<T extends BasicEntity> {
+public abstract class BaseDao<Entity extends BasicEntity> {
 
     /**
      * A helper class to manage database creation and version management.
@@ -133,9 +132,9 @@ public abstract class BaseDao<T extends BasicEntity> {
      * @param ts delete the queue list.
      * @return a boolean value, whether deleted successfully.
      */
-    public final boolean delete(List<T> ts) {
+    public final boolean delete(List<Entity> ts) {
         StringBuilder where = new StringBuilder(BasicSQLHelper.ID).append(" IN(");
-        for (T t : ts) {
+        for (Entity t : ts) {
             long id = t.getId();
             if (id > 0) {
                 where.append(',');
@@ -175,7 +174,7 @@ public abstract class BaseDao<T extends BasicEntity> {
      *
      * @return list data.
      */
-    public final List<T> getAll() {
+    public final List<Entity> getAll() {
         return getList(null, null, null, null);
     }
 
@@ -188,7 +187,7 @@ public abstract class BaseDao<T extends BasicEntity> {
      * @param offset  offset.
      * @return list data.
      */
-    public final List<T> getList(String where, String orderBy, String limit, String offset) {
+    public final List<Entity> getList(String where, String orderBy, String limit, String offset) {
         StringBuilder sqlBuild = new StringBuilder("SELECT ").append(BasicSQLHelper.ALL).append(" FROM ").append
                 (getTableName());
         if (!TextUtils.isEmpty(where)) {
@@ -216,15 +215,15 @@ public abstract class BaseDao<T extends BasicEntity> {
      * @param querySql sql.
      * @return list data.
      */
-    protected abstract List<T> getList(String querySql);
+    protected abstract List<Entity> getList(String querySql);
 
     /**
      * According to the unique index adds or updates a row data.
      *
-     * @param t {@link T}.
+     * @param t {@link Entity}.
      * @return long.
      */
-    public abstract long replace(T t);
+    public abstract long replace(Entity t);
 
     /**
      * Table name should be.

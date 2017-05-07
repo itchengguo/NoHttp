@@ -15,15 +15,17 @@
  */
 package com.yanzhenjie.nohttp.rest;
 
+import com.yanzhenjie.nohttp.Headers;
+
 import java.util.List;
 import java.util.Set;
 
 /**
  * <p>In response to the class, use generic compatibility with all I to type, and put the parsing operation in
- * {@link Request}.</p>
- * Created in Oct 12, 2015 1:00:46 PM.
+ * {@link IProtocolRequest}.</p>
+ * Created by Yan Zhenjie on Oct 12, 2015.
  *
- * @author Yan Zhenjie.
+ * @param <T> result type.
  */
 public class RestResponse<T> implements Response<T> {
 
@@ -58,7 +60,7 @@ public class RestResponse<T> implements Response<T> {
     /**
      * Create succeed response.
      *
-     * @param request     {@link Request}.
+     * @param request     {@link IProtocolRequest}.
      * @param isFromCache data is come from cache.
      * @param headers     response header.
      * @param result      result.

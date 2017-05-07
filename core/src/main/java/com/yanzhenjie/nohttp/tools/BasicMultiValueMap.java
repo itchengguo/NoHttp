@@ -21,9 +21,10 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Created on 2016/6/23.
+ * Created by Yan Zhenjie on 2016/6/23.
  *
- * @author Yan Zhenjie.
+ * @param <K> key.
+ * @param <V> value.
  */
 public class BasicMultiValueMap<K, V> implements MultiValueMap<K, V> {
 

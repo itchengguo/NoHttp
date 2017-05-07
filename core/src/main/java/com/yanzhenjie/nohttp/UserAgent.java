@@ -22,9 +22,7 @@ import java.lang.reflect.Field;
 import java.util.Locale;
 
 /**
- * Created in Oct 15, 2015 12:39:06 PM.
- *
- * @author Yan Zhenjie.
+ * Created by Yan Zhenjie on Oct 15, 2015.
  */
 public class UserAgent {
 
@@ -56,7 +54,7 @@ public class UserAgent {
             Class<?> sysResCls = Class.forName("com.android.internal.R$string");
             Field webUserAgentField = sysResCls.getDeclaredField("web_user_agent");
             Integer resId = (Integer) webUserAgentField.get(null);
-            webUserAgent = NoHttp.getContext().getString(resId);
+            webUserAgent = CoreConfig.getContext().getString(resId);
         } catch (Exception e) {
             // We have nothing to do
         }

@@ -15,28 +15,30 @@
  */
 package com.yanzhenjie.nohttp.rest;
 
-import org.json.JSONObject;
+import com.yanzhenjie.nohttp.Headers;
+import com.yanzhenjie.nohttp.RequestMethod;
+
+import org.json.JSONArray;
 
 /**
- * <p>JsonObject is returned by the server data, using the request object.</p>
- * Created in Jan 19, 2016 3:27:35 PM.
- *
- * @author Yan Zhenjie.
+ * <p>JsonArray is returned by the server data, using the request object.</p>
+ * Created by Yan Zhenjie on Jan 19, 2016.
  */
-public class JsonObjectRequest extends RestRequest<JSONObject> {
+public class JsonArrayRequest extends RestRequest<JSONArray> {
 
-    public JsonObjectRequest(String url) {
+    public JsonArrayRequest(String url) {
         this(url, RequestMethod.GET);
     }
 
-    public JsonObjectRequest(String url, RequestMethod requestMethod) {
+    public JsonArrayRequest(String url, RequestMethod requestMethod) {
         super(url, requestMethod);
         setAccept(Headers.HEAD_VALUE_ACCEPT_APPLICATION_JSON);
     }
 
     @Override
-    public JSONObject parseResponse(Headers responseHeaders, byte[] responseBody) throws Exception {
+    public JSONArray parseResponse(Headers responseHeaders, byte[] responseBody) throws Exception {
         String jsonStr = StringRequest.parseResponseString(responseHeaders, responseBody);
-        return new JSONObject(jsonStr);
+        return new JSONArray(jsonStr);
     }
+
 }

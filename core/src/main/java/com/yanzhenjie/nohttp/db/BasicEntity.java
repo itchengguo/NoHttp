@@ -17,9 +17,7 @@ package com.yanzhenjie.nohttp.db;
 
 /**
  * <p>The entity class id of the interface.</p>
- * Created in Jan 10, 2016 11:03:21 PM.
- *
- * @author Yan Zhenjie.
+ * Created by Yan Zhenjie on Jan 10, 2016.
  */
 public interface BasicEntity {
 

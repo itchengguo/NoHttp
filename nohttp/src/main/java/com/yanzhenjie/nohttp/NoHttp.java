@@ -1,7 +1,33 @@
+/*
+ * Copyright 2015 Yan Zhenjie
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.yanzhenjie.nohttp;
 
 import android.graphics.Bitmap;
 import android.widget.ImageView;
+
+import com.yanzhenjie.nohttp.download.DownloadQueue;
+import com.yanzhenjie.nohttp.download.DownloadRequest;
+import com.yanzhenjie.nohttp.download.QueueDownloadRequest;
+import com.yanzhenjie.nohttp.rest.ByteArrayRequest;
+import com.yanzhenjie.nohttp.rest.ImageRequest;
+import com.yanzhenjie.nohttp.rest.JsonArrayRequest;
+import com.yanzhenjie.nohttp.rest.JsonObjectRequest;
+import com.yanzhenjie.nohttp.rest.Request;
+import com.yanzhenjie.nohttp.rest.RequestQueue;
+import com.yanzhenjie.nohttp.rest.StringRequest;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -9,7 +35,7 @@ import org.json.JSONObject;
 /**
  * Created by Yan Zhenjie on 2017/5/4.
  */
-public class Test {
+public class NoHttp {
 
     /**
      * Create a queue of request, the default thread pool size is 3.
@@ -231,5 +257,78 @@ public class Test {
                 }
             }
         return sDownloadQueueInstance;
+    }
+
+    /**
+     * Create a download object, auto named file. The request method is {@link RequestMethod#GET}.
+     *
+     * @param url         download address.
+     * @param fileFolder  folder to save file.
+     * @param isDeleteOld find the same when the file is deleted after download, or on behalf of the download is
+     *                    complete, not to request the network.
+     * @return {@link DownloadRequest}.
+     * @see #createDownloadRequest(String, RequestMethod, String, String, boolean, boolean)
+     */
+    public static DownloadRequest createDownloadRequest(String url, String fileFolder, boolean isDeleteOld) {
+        return createDownloadRequest(url, RequestMethod.GET, fileFolder, isDeleteOld);
+    }
+
+    /**
+     * Create a download object, auto named file.
+     *
+     * @param url           download address.
+     * @param requestMethod {@link RequestMethod}.
+     * @param fileFolder    folder to save file.
+     * @param isDeleteOld   find the same when the file is deleted after download, or on behalf of the download is
+     *                      complete, not to request the network.
+     * @return {@link DownloadRequest}.
+     * @see #createDownloadRequest(String, RequestMethod, String, String, boolean, boolean)
+     */
+    public static DownloadRequest createDownloadRequest(String url,
+                                                        RequestMethod requestMethod,
+                                                        String fileFolder,
+                                                        boolean isDeleteOld) {
+        return new QueueDownloadRequest(url, requestMethod, fileFolder, isDeleteOld);
+    }
+
+    /**
+     * Create a download object. The request method is {@link RequestMethod#GET}.
+     *
+     * @param url         download address.
+     * @param fileFolder  folder to save file.
+     * @param filename    filename.
+     * @param isRange     whether the breakpoint continuing.
+     * @param isDeleteOld find the same when the file is deleted after download, or on behalf of the download is
+     *                    complete, not to request the network.
+     * @return {@link DownloadRequest}.
+     * @see #createDownloadRequest(String, RequestMethod, String, String, boolean, boolean)
+     */
+    public static DownloadRequest createDownloadRequest(String url,
+                                                        String fileFolder,
+                                                        String filename, boolean isRange,
+                                                        boolean isDeleteOld) {
+        return createDownloadRequest(url, RequestMethod.GET, fileFolder, filename, isRange, isDeleteOld);
+    }
+
+    /**
+     * Create a download object.
+     *
+     * @param url           download address.
+     * @param requestMethod {@link RequestMethod}.
+     * @param fileFolder    folder to save file.
+     * @param filename      filename.
+     * @param isRange       whether the breakpoint continuing.
+     * @param isDeleteOld   find the same when the file is deleted after download, or on behalf of the download is
+     *                      complete, not to request the network.
+     * @return {@link DownloadRequest}.
+     * @see #createDownloadRequest(String, String, String, boolean, boolean)
+     */
+    public static DownloadRequest createDownloadRequest(String url,
+                                                        RequestMethod requestMethod,
+                                                        String fileFolder,
+                                                        String filename,
+                                                        boolean isRange,
+                                                        boolean isDeleteOld) {
+        return new QueueDownloadRequest(url, requestMethod, fileFolder, filename, isRange, isDeleteOld);
     }
 }

@@ -30,12 +30,12 @@ import android.text.style.StrikethroughSpan;
 import android.view.View;
 import android.widget.TextView;
 
+import com.yanzhenjie.nohttp.CoreConfig;
+
 import java.lang.reflect.Method;
 
 /**
- * Created in Nov 27, 2015 6:20:48 PM.
- *
- * @author Yan Zhenjie.
+ * Created by Yan Zhenjie on Nov 27, 2015.
  */
 public class ResCompat {
 
@@ -44,7 +44,7 @@ public class ResCompat {
     }
 
     public static Drawable getDrawable(int drawableId, Theme theme) {
-        Resources resources = NoHttp.getContext().getResources();
+        Resources resources = CoreConfig.getContext().getResources();
         Class<?> resourcesClass = resources.getClass();
         if (Build.VERSION.SDK_INT >= AndroidVersion.LOLLIPOP)
             try {
@@ -136,7 +136,7 @@ public class ResCompat {
     }
 
     public static int getColor(int colorId, Theme theme) {
-        Resources resources = NoHttp.getContext().getResources();
+        Resources resources = CoreConfig.getContext().getResources();
         Class<?> resourcesClass = resources.getClass();
         if (Build.VERSION.SDK_INT >= AndroidVersion.M)
             try {
@@ -160,7 +160,7 @@ public class ResCompat {
     }
 
     public static ColorStateList getColorStateList(int colorStateId, Theme theme) {
-        Resources resources = NoHttp.getContext().getResources();
+        Resources resources = CoreConfig.getContext().getResources();
         Class<?> resourcesClass = resources.getClass();
         if (Build.VERSION.SDK_INT >= AndroidVersion.M)
             try {

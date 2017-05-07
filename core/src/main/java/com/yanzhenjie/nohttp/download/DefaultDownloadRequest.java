@@ -24,11 +24,9 @@ import java.io.File;
  * <p>
  * Download the implementation class of the parameter request, and convert it to the object of the network download.
  * </p>
- * Created in Jul 31, 2015 10:38:10 AM.
- *
- * @author Yan Zhenjie..
+ * Created by Yan Zhenjie on Jul 31, 2015.
  */
-public class DefaultDownloadRequest extends BasicRequest implements DownloadRequest {
+public class DefaultDownloadRequest extends BasicRequest implements IDownloadRequest {
 
     /**
      * File the target folder.

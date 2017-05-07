@@ -46,11 +46,10 @@ import javax.net.ssl.SSLSocketFactory;
  * <p>
  * Implement all the methods of the base class {@link IBasicRequest}.
  * </p>
- * Created in Nov 4, 2015 8:28:50 AM.
- *
- * @author Yan Zhenjie.
+ * Created by Yan Zhenjie on Nov 4, 2015.
  */
-public abstract class BasicRequest implements IBasicRequest {
+@SuppressWarnings("unchecked")
+public class BasicRequest implements IBasicRequest<BasicRequest> {
 
     private final String boundary = createBoundary();
     private final String startBoundary = "--" + boundary;
@@ -83,11 +82,11 @@ public abstract class BasicRequest implements IBasicRequest {
     /**
      * Connect timeout of request.
      */
-    private int mConnectTimeout = NoHttp.getConnectTimeout();
+    private int mConnectTimeout = CoreConfig.getInstance().getConnectTimeout();
     /**
      * Read data timeout.
      */
-    private int mReadTimeout = NoHttp.getReadTimeout();
+    private int mReadTimeout = CoreConfig.getInstance().getReadTimeout();
     /**
      * Request heads.
      */
@@ -197,7 +196,7 @@ public abstract class BasicRequest implements IBasicRequest {
     }
 
     @Override
-    public IBasicRequest setMultipartFormEnable(boolean enable) {
+    public BasicRequest setMultipartFormEnable(boolean enable) {
         validateMethodForBody("Form body");
         isMultipartFormEnable = enable;
         return this;
@@ -209,7 +208,7 @@ public abstract class BasicRequest implements IBasicRequest {
     }
 
     @Override
-    public IBasicRequest setProxy(Proxy proxy) {
+    public BasicRequest setProxy(Proxy proxy) {
         this.mProxy = proxy;
         return this;
     }
@@ -220,7 +219,7 @@ public abstract class BasicRequest implements IBasicRequest {
     }
 
     @Override
-    public IBasicRequest setSSLSocketFactory(SSLSocketFactory socketFactory) {
+    public BasicRequest setSSLSocketFactory(SSLSocketFactory socketFactory) {
         mSSLSocketFactory = socketFactory;
         return this;
     }
@@ -231,7 +230,7 @@ public abstract class BasicRequest implements IBasicRequest {
     }
 
     @Override
-    public IBasicRequest setHostnameVerifier(HostnameVerifier hostnameVerifier) {
+    public BasicRequest setHostnameVerifier(HostnameVerifier hostnameVerifier) {
         mHostnameVerifier = hostnameVerifier;
         return this;
     }
@@ -242,7 +241,7 @@ public abstract class BasicRequest implements IBasicRequest {
     }
 
     @Override
-    public IBasicRequest setConnectTimeout(int connectTimeout) {
+    public BasicRequest setConnectTimeout(int connectTimeout) {
         mConnectTimeout = connectTimeout;
         return this;
     }
@@ -253,7 +252,7 @@ public abstract class BasicRequest implements IBasicRequest {
     }
 
     @Override
-    public IBasicRequest setReadTimeout(int readTimeout) {
+    public BasicRequest setReadTimeout(int readTimeout) {
         mReadTimeout = readTimeout;
         return this;
     }
@@ -264,32 +263,32 @@ public abstract class BasicRequest implements IBasicRequest {
     }
 
     @Override
-    public IBasicRequest addHeader(String key, String value) {
+    public BasicRequest addHeader(String key, String value) {
         mHeaders.add(key, value);
         return this;
     }
 
     @Override
-    public IBasicRequest setHeader(String key, String value) {
+    public BasicRequest setHeader(String key, String value) {
         mHeaders.set(key, value);
         return this;
     }
 
     @Override
-    public IBasicRequest addHeader(HttpCookie cookie) {
+    public BasicRequest addHeader(HttpCookie cookie) {
         if (cookie != null)
             mHeaders.add(Headers.HEAD_KEY_COOKIE, cookie.getName() + "=" + cookie.getValue());
         return this;
     }
 
     @Override
-    public IBasicRequest removeHeader(String key) {
+    public BasicRequest removeHeader(String key) {
         mHeaders.remove(key);
         return this;
     }
 
     @Override
-    public IBasicRequest removeAllHeader() {
+    public BasicRequest removeAllHeader() {
         mHeaders.clear();
         return this;
     }
@@ -300,13 +299,13 @@ public abstract class BasicRequest implements IBasicRequest {
     }
 
     @Override
-    public IBasicRequest setAccept(String accept) {
+    public BasicRequest setAccept(String accept) {
         mHeaders.set(Headers.HEAD_KEY_ACCEPT, accept);
         return this;
     }
 
     @Override
-    public IBasicRequest setAcceptLanguage(String acceptLanguage) {
+    public BasicRequest setAcceptLanguage(String acceptLanguage) {
         mHeaders.set(Headers.HEAD_KEY_ACCEPT_LANGUAGE, acceptLanguage);
         return this;
     }
@@ -323,7 +322,7 @@ public abstract class BasicRequest implements IBasicRequest {
     }
 
     @Override
-    public IBasicRequest setContentType(String contentType) {
+    public BasicRequest setContentType(String contentType) {
         mHeaders.set(Headers.HEAD_KEY_CONTENT_TYPE, contentType);
         return this;
     }
@@ -340,13 +339,13 @@ public abstract class BasicRequest implements IBasicRequest {
     }
 
     @Override
-    public IBasicRequest setUserAgent(String userAgent) {
+    public BasicRequest setUserAgent(String userAgent) {
         mHeaders.set(Headers.HEAD_KEY_USER_AGENT, userAgent);
         return this;
     }
 
     @Override
-    public IBasicRequest setRetryCount(int count) {
+    public BasicRequest setRetryCount(int count) {
         this.mRetryCount = count;
         return this;
     }
@@ -357,7 +356,7 @@ public abstract class BasicRequest implements IBasicRequest {
     }
 
     @Override
-    public IBasicRequest setParamsEncoding(String encoding) {
+    public BasicRequest setParamsEncoding(String encoding) {
         this.mParamEncoding = encoding;
         return this;
     }
@@ -370,65 +369,103 @@ public abstract class BasicRequest implements IBasicRequest {
     }
 
     @Override
-    public IBasicRequest add(String key, int value) {
+    public BasicRequest path(int path) {
+        return path(Integer.toString(path));
+    }
+
+    @Override
+    public BasicRequest path(long path) {
+        return path(Long.toString(path));
+    }
+
+    @Override
+    public BasicRequest path(short path) {
+        return path(Integer.toString(path));
+    }
+
+    @Override
+    public BasicRequest path(float path) {
+        return path(Float.toString(path));
+    }
+
+    @Override
+    public BasicRequest path(double path) {
+        return path(Double.toString(path));
+    }
+
+    @Override
+    public BasicRequest path(boolean path) {
+        return path(Boolean.toString(path));
+    }
+
+    @Override
+    public BasicRequest path(char path) {
+        return path(String.valueOf(path));
+    }
+
+    @Override
+    public BasicRequest path(byte path) {
+        return path(Integer.toString(path));
+    }
+
+    @Override
+    public BasicRequest path(String path) {
+        url += url.endsWith("/") ? path : ("/" + path);
+        return this;
+    }
+
+    @Override
+    public BasicRequest add(String key, int value) {
+        return add(key, Integer.toString(value));
+    }
+
+    @Override
+    public BasicRequest add(String key, long value) {
+        return add(key, Long.toString(value));
+    }
+
+    @Override
+    public BasicRequest add(String key, boolean value) {
+        return add(key, Boolean.toString(value));
+    }
+
+    @Override
+    public BasicRequest add(String key, char value) {
+        return add(key, String.valueOf(value));
+    }
+
+    @Override
+    public BasicRequest add(String key, double value) {
+        return add(key, Double.toString(value));
+    }
+
+    @Override
+    public BasicRequest add(String key, float value) {
+        return add(key, Float.toString(value));
+    }
+
+    @Override
+    public BasicRequest add(String key, short value) {
         add(key, Integer.toString(value));
         return this;
     }
 
     @Override
-    public IBasicRequest add(String key, long value) {
-        add(key, Long.toString(value));
+    public BasicRequest add(String key, byte value) {
+        return add(key, Integer.toString(value));
+    }
+
+    @Override
+    public BasicRequest add(String key, String value) {
+        value = value == null ? "" : value;
+        mParamKeyValues.add(key, value);
         return this;
     }
 
     @Override
-    public IBasicRequest add(String key, boolean value) {
-        add(key, String.valueOf(value));
-        return this;
-    }
-
-    @Override
-    public IBasicRequest add(String key, char value) {
-        add(key, String.valueOf(value));
-        return this;
-    }
-
-    @Override
-    public IBasicRequest add(String key, double value) {
-        add(key, Double.toString(value));
-        return this;
-    }
-
-    @Override
-    public IBasicRequest add(String key, float value) {
-        add(key, Float.toString(value));
-        return this;
-    }
-
-    @Override
-    public IBasicRequest add(String key, short value) {
-        add(key, Integer.toString(value));
-        return this;
-    }
-
-    @Override
-    public IBasicRequest add(String key, byte value) {
-        add(key, Integer.toString(value));
-        return this;
-    }
-
-    @Override
-    public IBasicRequest add(String key, String value) {
-        if (value != null) {
-            mParamKeyValues.add(key, value);
-        }
-        return this;
-    }
-
-    @Override
-    public IBasicRequest set(String key, String value) {
-        if (value != null)
-            mParamKeyValues.set(key, value);
+    public BasicRequest set(String key, String value) {
+        value = value == null ? "" : value;
+        mParamKeyValues.set(key, value);
         return this;
     }
 
@@ -444,35 +481,35 @@ public abstract class BasicRequest implements IBasicRequest {
     }
 
     @Override
-    public IBasicRequest add(String key, Binary binary) {
+    public BasicRequest add(String key, Binary binary) {
         validateMethodForBody("The Binary param");
         mParamKeyValues.add(key, binary);
         return this;
     }
 
     @Override
-    public IBasicRequest set(String key, Binary binary) {
+    public BasicRequest set(String key, Binary binary) {
         validateMethodForBody("The Binary param");
         mParamKeyValues.set(key, binary);
         return this;
     }
 
     @Override
-    public IBasicRequest add(String key, File file) {
+    public BasicRequest add(String key, File file) {
         validateMethodForBody("The File param");
         add(key, new FileBinary(file));
         return this;
     }
 
     @Override
-    public IBasicRequest set(String key, File file) {
+    public BasicRequest set(String key, File file) {
         validateMethodForBody("The File param");
         set(key, new FileBinary(file));
         return this;
     }
 
     @Override
-    public IBasicRequest add(String key, List<Binary> binaries) {
+    public BasicRequest add(String key, List<Binary> binaries) {
         validateMethodForBody("The List<Binary> param");
         if (binaries != null) {
             for (Binary binary : binaries)
@@ -482,7 +519,7 @@ public abstract class BasicRequest implements IBasicRequest {
     }
 
     @Override
-    public IBasicRequest set(String key, List<Binary> binaries) {
+    public BasicRequest set(String key, List<Binary> binaries) {
         validateMethodForBody("The List<Binary> param");
         mParamKeyValues.remove(key);
         add(key, binaries);
@@ -490,7 +527,7 @@ public abstract class BasicRequest implements IBasicRequest {
     }
 
     @Override
-    public IBasicRequest add(Map<String, String> params) {
+    public BasicRequest add(Map<String, String> params) {
         if (params != null) {
             for (Map.Entry<String, String> stringEntry : params.entrySet())
                 add(stringEntry.getKey(), stringEntry.getValue());
@@ -499,7 +536,7 @@ public abstract class BasicRequest implements IBasicRequest {
     }
 
     @Override
-    public IBasicRequest set(Map<String, String> params) {
+    public BasicRequest set(Map<String, String> params) {
         if (params != null) {
             for (Map.Entry<String, String> stringEntry : params.entrySet())
                 set(stringEntry.getKey(), stringEntry.getValue());
@@ -508,13 +545,13 @@ public abstract class BasicRequest implements IBasicRequest {
     }
 
     @Override
-    public IBasicRequest remove(String key) {
+    public BasicRequest remove(String key) {
         mParamKeyValues.remove(key);
         return this;
     }
 
     @Override
-    public IBasicRequest removeAll() {
+    public BasicRequest removeAll() {
         mParamKeyValues.clear();
         return this;
     }
@@ -536,7 +573,7 @@ public abstract class BasicRequest implements IBasicRequest {
     }
 
     @Override
-    public IBasicRequest setDefineRequestBody(InputStream requestBody, String contentType) {
+    public BasicRequest setDefineRequestBody(InputStream requestBody, String contentType) {
         validateMethodForBody("Request body");
         validateParamForBody(requestBody, contentType);
         if (requestBody instanceof ByteArrayInputStream || requestBody instanceof FileInputStream) {
@@ -550,7 +587,7 @@ public abstract class BasicRequest implements IBasicRequest {
     }
 
     @Override
-    public IBasicRequest setDefineRequestBody(String requestBody, String contentType) {
+    public BasicRequest setDefineRequestBody(String requestBody, String contentType) {
         validateMethodForBody("Request body");
         validateParamForBody(requestBody, contentType);
         try {
@@ -564,19 +601,19 @@ public abstract class BasicRequest implements IBasicRequest {
     }
 
     @Override
-    public IBasicRequest setDefineRequestBodyForJson(String jsonBody) {
+    public BasicRequest setDefineRequestBodyForJson(String jsonBody) {
         setDefineRequestBody(jsonBody, Headers.HEAD_VALUE_ACCEPT_APPLICATION_JSON);
         return this;
     }
 
     @Override
-    public IBasicRequest setDefineRequestBodyForJson(JSONObject jsonBody) {
+    public BasicRequest setDefineRequestBodyForJson(JSONObject jsonBody) {
         setDefineRequestBody(jsonBody.toString(), Headers.HEAD_VALUE_ACCEPT_APPLICATION_JSON);
         return this;
     }
 
     @Override
-    public IBasicRequest setDefineRequestBodyForXML(String xmlBody) {
+    public BasicRequest setDefineRequestBodyForXML(String xmlBody) {
         setDefineRequestBody(xmlBody, Headers.HEAD_VALUE_ACCEPT_APPLICATION_XML);
         return this;
     }
@@ -731,7 +768,7 @@ public abstract class BasicRequest implements IBasicRequest {
     }
 
     @Override
-    public IBasicRequest setRedirectHandler(RedirectHandler redirectHandler) {
+    public BasicRequest setRedirectHandler(RedirectHandler redirectHandler) {
         mRedirectHandler = redirectHandler;
         return this;
     }
@@ -742,7 +779,7 @@ public abstract class BasicRequest implements IBasicRequest {
     }
 
     @Override
-    public IBasicRequest setTag(Object tag) {
+    public BasicRequest setTag(Object tag) {
         this.mTag = tag;
         return this;
     }
@@ -795,7 +832,8 @@ public abstract class BasicRequest implements IBasicRequest {
         return isCanceled;
     }
 
-    public IBasicRequest setCancelSign(Object sign) {
+    @Override
+    public BasicRequest setCancelSign(Object sign) {
         this.mCancelSign = sign;
         return this;
     }

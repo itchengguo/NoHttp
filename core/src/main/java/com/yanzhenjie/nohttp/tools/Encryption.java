@@ -24,9 +24,7 @@ import java.security.NoSuchAlgorithmException;
 import javax.crypto.Cipher;
 
 /**
- * Created in 2016/4/10 11:27.
- *
- * @author Yan Zhenjie.
+ * Created by Yan Zhenjie on 2016/4/10.
  */
 public class Encryption {
 

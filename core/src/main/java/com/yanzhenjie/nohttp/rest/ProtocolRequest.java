@@ -15,18 +15,23 @@
  */
 package com.yanzhenjie.nohttp.rest;
 
-import android.text.TextUtils;
+import com.yanzhenjie.nohttp.BasicRequest;
+import com.yanzhenjie.nohttp.Headers;
+import com.yanzhenjie.nohttp.RequestMethod;
 
 /**
- * <p>For the Request to encapsulate some Http protocol related properties.</p>
+ * <p>
+ * For the Request to encapsulate some Http protocol related properties.
+ * </p>
  * Created by Yan Zhenjie on 2016/8/20.
  */
-public abstract class ProtocolRequest<T> extends BasicRequest implements IProtocolRequest<T> {
+public abstract class ProtocolRequest<Result> extends BasicRequest implements IProtocolRequest<Result> {
 
     /**
      * Cache key.
      */
     private String mCacheKey;
+
     /**
      * If just read from cache.
      */
@@ -42,7 +47,7 @@ public abstract class ProtocolRequest<T> extends BasicRequest implements IProtoc
     }
 
     /**
-     * Create a request
+     * Create a request.
      *
      * @param url           request address, like: http://www.google.com.
      * @param requestMethod request method, like {@link RequestMethod#GET}, {@link RequestMethod#POST}.
@@ -59,7 +64,7 @@ public abstract class ProtocolRequest<T> extends BasicRequest implements IProtoc
 
     @Override
     public String getCacheKey() {
-        return TextUtils.isEmpty(mCacheKey) ? url() : mCacheKey;
+        return this.mCacheKey;
     }
 
     @Override
@@ -70,7 +75,17 @@ public abstract class ProtocolRequest<T> extends BasicRequest implements IProtoc
 
     @Override
     public CacheMode getCacheMode() {
-        return mCacheMode;
+        return this.mCacheMode;
     }
+
+    /**
+     * Parse request results for generic objects.
+     *
+     * @param responseHeaders response headers of server.
+     * @param responseBody    response data of server.
+     * @return your response result.
+     * @throws Exception parse error.
+     */
+    public abstract Result parseResponse(Headers responseHeaders, byte[] responseBody) throws Exception;
 
 }

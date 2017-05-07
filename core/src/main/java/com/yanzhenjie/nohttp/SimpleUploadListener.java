@@ -16,9 +16,7 @@
 package com.yanzhenjie.nohttp;
 
 /**
- * Created on 2016/6/7.
- *
- * @author Yan Zhenjie.
+ * Created by Yan Zhenjie on 2016/6/7.
  */
 public abstract class SimpleUploadListener implements OnUploadListener {
     @Override

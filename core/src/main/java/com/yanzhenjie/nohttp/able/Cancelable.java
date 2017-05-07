@@ -17,9 +17,7 @@ package com.yanzhenjie.nohttp.able;
 
 /**
  * <p>Cancel interface.</p>
- * Created in Dec 17, 2015 11:42:10 AM.
- *
- * @author Yan Zhenjie;
+ * Created by Yan Zhenjie on Dec 17, 2015.
  */
 public interface Cancelable {
 

@@ -20,6 +20,7 @@ import android.os.Process;
 import com.yanzhenjie.nohttp.Delivery;
 import com.yanzhenjie.nohttp.Logger;
 
+import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 
 /**
@@ -31,14 +32,10 @@ import java.util.concurrent.BlockingQueue;
  * @author Yan Zhenjie.
  */
 public class RequestDispatcher extends Thread {
-    /**
-     * Request queue.
-     */
+
+    private final Map<Request, ListenerEntity<?>> mListenerEntityMap;
     private final BlockingQueue<Request<?>> mRequestQueue;
-    /**
-     * Un finish task queue.
-     */
-    private final BlockingQueue<Request<?>> mUnFinishQueue;
+
     /**
      * Delivery.
      */
@@ -51,13 +48,14 @@ public class RequestDispatcher extends Thread {
     /**
      * Create a request queue polling thread.
      *
-     * @param unFinishQueue un finish queue.
-     * @param requestQueue  request queue.
-     * @param delivery      delivery.
+     * @param listenerEntityMap listener entity map.
+     * @param requestQueue      request queue.
+     * @param delivery          delivery.
      */
-    public RequestDispatcher(BlockingQueue<Request<?>> unFinishQueue, BlockingQueue<Request<?>> requestQueue,
+    public RequestDispatcher(Map<Request, ListenerEntity<?>> listenerEntityMap,
+                             BlockingQueue<Request<?>> requestQueue,
                              Delivery delivery) {
-        this.mUnFinishQueue = unFinishQueue;
+        this.mListenerEntityMap = listenerEntityMap;
         this.mRequestQueue = requestQueue;
         this.mDelivery = delivery;
     }
@@ -91,34 +89,30 @@ public class RequestDispatcher extends Thread {
                 continue;
             }
 
-            int what = request.what();
-            OnResponseListener<?> listener = request.responseListener();
+            ListenerEntity<?> listenerEntity = mListenerEntityMap.get(request);
 
             // start
-            request.start();
-            Messenger.prepare(what, listener)
+            Messenger.prepare(listenerEntity.what(), listenerEntity.responseListener())
                     .start()
                     .post(mDelivery);
 
             // request.
             Response response = SyncRequestExecutor.INSTANCE.execute(request);
-            // remove it from queue.
-            mUnFinishQueue.remove(request);
 
             // response
             if (request.isCanceled())
                 Logger.d(request.url() + " finish, but it's canceled.");
             else
                 //noinspection unchecked
-                Messenger.prepare(what, listener)
+                Messenger.prepare(listenerEntity.what(), listenerEntity.responseListener())
                         .response(response)
                         .post(mDelivery);
 
             // finish.
-            request.finish();
-            Messenger.prepare(what, listener)
+            Messenger.prepare(listenerEntity.what(), listenerEntity.responseListener())
                     .finish()
                     .post(mDelivery);
+            mListenerEntityMap.remove(request);
         }
     }
 }

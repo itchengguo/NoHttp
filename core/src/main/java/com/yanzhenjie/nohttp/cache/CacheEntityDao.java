@@ -30,9 +30,7 @@ import java.util.List;
 
 /**
  * <p>CacheStore database manager.</p>
- * Created in Jan 10, 2016 12:42:29 AM.
- *
- * @author Yan Zhenjie;
+ * Created by Yan Zhenjie on Jan 10, 2016.
  */
 public class CacheEntityDao extends BaseDao<CacheEntity> {
 

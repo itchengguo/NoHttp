@@ -15,11 +15,17 @@
  */
 package com.yanzhenjie.nohttp.rest;
 
+import com.yanzhenjie.nohttp.BasicRequest;
+import com.yanzhenjie.nohttp.Headers;
+import com.yanzhenjie.nohttp.IBasicRequest;
+
 /**
  * <p>For the Request to encapsulate some Http protocol related properties.</p>
  * Created by Yan Zhenjie on 2016/8/20.
+ *
+ * @param <Result> result.
  */
-public interface IProtocolRequest<T> extends IBasicRequest {
+public interface IProtocolRequest<Result> extends IBasicRequest<BasicRequest> {
 
     /**
      * Set the request cache primary key, it should be globally unique.
@@ -59,6 +65,6 @@ public interface IProtocolRequest<T> extends IBasicRequest {
      * @return your response result.
      * @throws Exception parse error.
      */
-    T parseResponse(Headers responseHeaders, byte[] responseBody) throws Exception;
+    Result parseResponse(Headers responseHeaders, byte[] responseBody) throws Exception;
 
 }

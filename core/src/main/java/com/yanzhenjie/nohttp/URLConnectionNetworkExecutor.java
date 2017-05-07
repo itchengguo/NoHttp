@@ -17,8 +17,8 @@ package com.yanzhenjie.nohttp;
 
 import android.os.Build;
 
-import com.yanzhenjie.nohttp.tools.HeaderUtil;
 import com.yanzhenjie.nohttp.tools.AndroidVersion;
+import com.yanzhenjie.nohttp.tools.HeaderUtil;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -38,6 +38,20 @@ import javax.net.ssl.SSLSocketFactory;
  * Created by Yan Zhenjie on 2016/10/15.
  */
 public class URLConnectionNetworkExecutor implements NetworkExecutor {
+
+    public static Builder newBuilder() {
+        return new Builder();
+    }
+
+    /**
+     * @deprecated use {@link #newBuilder()} instead.
+     */
+    @Deprecated
+    public URLConnectionNetworkExecutor() {
+    }
+
+    private URLConnectionNetworkExecutor(Builder builder) {
+    }
 
     @Override
     public Network execute(IBasicRequest request) throws Exception {
@@ -177,6 +191,16 @@ public class URLConnectionNetworkExecutor implements NetworkExecutor {
             inputStream = new GZIPInputStream(inputStream);
         }
         return inputStream;
+    }
+
+    public static final class Builder {
+
+        private Builder() {
+        }
+
+        public URLConnectionNetworkExecutor build() {
+            return new URLConnectionNetworkExecutor(this);
+        }
     }
 
 }

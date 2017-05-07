@@ -1,5 +1,5 @@
 /*
- * Copyright © Yan Zhenjie. All Rights Reserved
+ * Copyright © Yan Zhenjie
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,20 +16,23 @@
 package com.yanzhenjie.nohttp.rest;
 
 /**
- * Created by Yan Zhenjie on 2016/8/20.
+ * Created by Yan Zhenjie on 2017/5/7.
  */
-public class ByteArrayRequest extends RestRequest<byte[]> {
+public class ListenerEntity<T> {
 
-    public ByteArrayRequest(String url) {
-        this(url, RequestMethod.GET);
+    private final int what;
+    private final OnResponseListener<T> responseListener;
+
+    public ListenerEntity(int what, OnResponseListener<T> responseListener) {
+        this.what = what;
+        this.responseListener = responseListener;
     }
 
-    public ByteArrayRequest(String url, RequestMethod requestMethod) {
-        super(url, requestMethod);
+    public int what() {
+        return what;
     }
 
-    @Override
-    public byte[] parseResponse(Headers responseHeaders, byte[] responseBody) throws Exception {
-        return responseBody == null ? new byte[0] : responseBody;
+    public OnResponseListener<T> responseListener() {
+        return responseListener;
     }
 }

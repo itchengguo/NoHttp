@@ -18,9 +18,8 @@ package com.yanzhenjie.nohttp.db;
 import java.util.List;
 
 /**
- * Created in Dec 19, 2015 4:16:24 PM.
- *
- * @author Yan Zhenjie.
+ * <p>Sql Where.</p>
+ * Created by Yan Zhenjie on Dec 19, 2015.
  */
 public class Where {
 

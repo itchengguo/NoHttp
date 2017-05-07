@@ -37,7 +37,7 @@ import javax.net.ssl.SSLSocketFactory;
 /**
  * Created by Yan Zhenjie on 2016/8/20.
  */
-public interface IBasicRequest extends Startable, Cancelable, Finishable {
+public interface IBasicRequest<Child extends IBasicRequest> extends Startable, Cancelable, Finishable {
 
     /*
      * =====================================================
@@ -51,68 +51,68 @@ public interface IBasicRequest extends Startable, Cancelable, Finishable {
      * under API level 19 does not support the DELETE.</p>
      *
      * @param enable true enable, other wise false.
-     * @return {@link IBasicRequest}.
+     * @return {@link Child}.
      */
-    IBasicRequest setMultipartFormEnable(boolean enable);
+    Child setMultipartFormEnable(boolean enable);
 
     /**
      * Set proxy server.
      *
      * @param proxy Can use {@code Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress("64.233.162.83",
-     * 80));}.
-     * @return {@link IBasicRequest}.
+     *              80));}.
+     * @return {@link Child}.
      */
-    IBasicRequest setProxy(Proxy proxy);
+    Child setProxy(Proxy proxy);
 
     /**
      * Sets the {@link SSLSocketFactory} for this request.
      *
      * @param socketFactory {@link SSLSocketFactory}.
-     * @return {@link IBasicRequest}.
+     * @return {@link Child}.
      */
-    IBasicRequest setSSLSocketFactory(SSLSocketFactory socketFactory);
+    Child setSSLSocketFactory(SSLSocketFactory socketFactory);
 
     /**
      * Set the {@link HostnameVerifier}.
      *
      * @param hostnameVerifier {@link HostnameVerifier}.
-     * @return {@link IBasicRequest}.
+     * @return {@link Child}.
      */
-    IBasicRequest setHostnameVerifier(HostnameVerifier hostnameVerifier);
+    Child setHostnameVerifier(HostnameVerifier hostnameVerifier);
 
     /**
      * Sets the connection timeout time.
      *
      * @param connectTimeout timeout number, Unit is a millisecond.
-     * @return {@link IBasicRequest}.
+     * @return {@link Child}.
      */
-    IBasicRequest setConnectTimeout(int connectTimeout);
+    Child setConnectTimeout(int connectTimeout);
 
     /**
      * Sets the read timeout time.
      *
      * @param readTimeout timeout number, Unit is a millisecond.
-     * @return {@link IBasicRequest}.
+     * @return {@link Child}.
      */
-    IBasicRequest setReadTimeout(int readTimeout);
+    Child setReadTimeout(int readTimeout);
 
     /**
      * Add a new key-value header.
      *
      * @param key   key.
      * @param value value.
-     * @return {@link IBasicRequest}.
+     * @return {@link Child}.
      */
-    IBasicRequest addHeader(String key, String value);
+    Child addHeader(String key, String value);
 
     /**
      * If there is a key to delete, and then add a new key-value header.
      *
      * @param key   key.
      * @param value value.
-     * @return {@link IBasicRequest}.
+     * @return {@link Child}.
      */
-    IBasicRequest setHeader(String key, String value);
+    Child setHeader(String key, String value);
 
     /**
      * <p>Add a {@link HttpCookie}.</p>
@@ -125,252 +125,325 @@ public interface IBasicRequest extends Startable, Cancelable, Finishable {
      * </pre>
      *
      * @param cookie {@link HttpCookie}.
-     * @return {@link IBasicRequest}.
+     * @return {@link Child}.
      */
-    IBasicRequest addHeader(HttpCookie cookie);
+    Child addHeader(HttpCookie cookie);
 
     /**
      * Remove the key from the information.
      *
      * @param key key.
-     * @return {@link IBasicRequest}.
+     * @return {@link Child}.
      */
-    IBasicRequest removeHeader(String key);
+    Child removeHeader(String key);
 
     /**
      * Remove all header.
      *
-     * @return {@link IBasicRequest}.
+     * @return {@link Child}.
      */
-    IBasicRequest removeAllHeader();
+    Child removeAllHeader();
 
     /**
      * Set the accept for head.
      *
      * @param accept such as: "{@value Headers#HEAD_VALUE_ACCEPT_APPLICATION_JSON}", "{@value
-     * Headers#HEAD_VALUE_ACCEPT_APPLICATION_XML}.
-     * @return {@link IBasicRequest}.
+     *               Headers#HEAD_VALUE_ACCEPT_APPLICATION_XML}.
+     * @return {@link Child}.
      */
-    IBasicRequest setAccept(String accept);
+    Child setAccept(String accept);
 
     /**
      * Set the acceptLanguage for head.
      *
      * @param acceptLanguage such as "zh-CN,zh", "en-US,us".
-     * @return {@link IBasicRequest}.
+     * @return {@link Child}.
      */
-    IBasicRequest setAcceptLanguage(String acceptLanguage);
+    Child setAcceptLanguage(String acceptLanguage);
 
     /**
      * Set the contentType for head.
      *
      * @param contentType such as: "{@value Headers#HEAD_VALUE_ACCEPT_APPLICATION_JSON}", "{@value
-     * Headers#HEAD_VALUE_ACCEPT_APPLICATION_XML}" or "{@value Headers#HEAD_VALUE_ACCEPT_MULTIPART_FORM_DATA}". Note,
+     *                    Headers#HEAD_VALUE_ACCEPT_APPLICATION_XML}" or "{@value
+     *                    Headers#HEAD_VALUE_ACCEPT_MULTIPART_FORM_DATA}". Note,
      *                    does not need to include quotation marks.
-     * @return {@link IBasicRequest}.
+     * @return {@link Child}.
      */
-    IBasicRequest setContentType(String contentType);
+    Child setContentType(String contentType);
 
     /**
      * Set the userAgent for head.
      *
      * @param userAgent such as: {@code Mozilla/5.0 (Android U; Android 5.0) AppleWebKit/533.1 (KHTML, like Gecko)
-     * Version/5.0 Safari/533.1}.
-     * @return {@link IBasicRequest}.
+     *                  Version/5.0 Safari/533.1}.
+     * @return {@link Child}.
      */
-    IBasicRequest setUserAgent(String userAgent);
+    Child setUserAgent(String userAgent);
 
     /**
      * Set the request fails retry count.The default value is 0, that is to say, after the failure will not go to
      * this to initiate the request again.
      *
      * @param count the retry count, The default value is 0.
-     * @return {@link IBasicRequest}.
+     * @return {@link Child}.
      */
-    IBasicRequest setRetryCount(int count);
+    Child setRetryCount(int count);
 
     /**
      * Set the params encoding.
      *
      * @param encoding such as {@code utf-8, gbk, gb2312}.
-     * @return {@link IBasicRequest}.
+     * @return {@link Child}.
      */
-    IBasicRequest setParamsEncoding(String encoding);
+    Child setParamsEncoding(String encoding);
+
+    /**
+     * Add a path to url.
+     *
+     * @param path path.
+     * @return {@link Child}.
+     */
+    Child path(int path);
+
+    /**
+     * Add a path to url.
+     *
+     * @param path path.
+     * @return {@link Child}.
+     */
+    Child path(long path);
+
+    /**
+     * Add a path to url.
+     *
+     * @param path path.
+     * @return {@link Child}.
+     */
+    Child path(short path);
+
+    /**
+     * Add a path to url.
+     *
+     * @param path path.
+     * @return {@link Child}.
+     */
+    Child path(float path);
+
+    /**
+     * Add a path to url.
+     *
+     * @param path path.
+     * @return {@link Child}.
+     */
+    Child path(double path);
+
+    /**
+     * Add a path to url.
+     *
+     * @param path path.
+     * @return {@link Child}.
+     */
+    Child path(boolean path);
+
+    /**
+     * Add a path to url.
+     *
+     * @param path path.
+     * @return {@link Child}.
+     */
+    Child path(char path);
+
+    /**
+     * Add a path to url.
+     *
+     * @param path path.
+     * @return {@link Child}.
+     */
+    Child path(byte path);
+
+    /**
+     * Add a path to url.
+     *
+     * @param path path.
+     * @return {@link Child}.
+     */
+    Child path(String path);
 
     /**
      * Add {@link Integer} param.
      *
      * @param key   param name.
      * @param value param value.
-     * @return {@link IBasicRequest}.
+     * @return {@link Child}.
      */
-    IBasicRequest add(String key, int value);
+    Child add(String key, int value);
 
     /**
      * Add {@link Long} param.
      *
      * @param key   param name.
      * @param value param value.
-     * @return {@link IBasicRequest}.
+     * @return {@link Child}.
      */
-    IBasicRequest add(String key, long value);
+    Child add(String key, long value);
 
     /**
      * Add {@link Boolean} param.
      *
      * @param key   param name.
      * @param value param value.
-     * @return {@link IBasicRequest}.
+     * @return {@link Child}.
      */
-    IBasicRequest add(String key, boolean value);
+    Child add(String key, boolean value);
 
     /**
      * Add {@code char} param.
      *
      * @param key   param name.
      * @param value param value.
-     * @return {@link IBasicRequest}.
+     * @return {@link Child}.
      */
-    IBasicRequest add(String key, char value);
+    Child add(String key, char value);
 
     /**
      * Add {@link Double} param.
      *
      * @param key   param name.
      * @param value param value.
-     * @return {@link IBasicRequest}.
+     * @return {@link Child}.
      */
-    IBasicRequest add(String key, double value);
+    Child add(String key, double value);
 
     /**
      * Add {@link Float} param.
      *
      * @param key   param name.
      * @param value param value.
-     * @return {@link IBasicRequest}.
+     * @return {@link Child}.
      */
-    IBasicRequest add(String key, float value);
+    Child add(String key, float value);
 
     /**
      * Add {@link Short} param.
      *
      * @param key   param name.
      * @param value param value.
-     * @return {@link IBasicRequest}.
+     * @return {@link Child}.
      */
-    IBasicRequest add(String key, short value);
+    Child add(String key, short value);
 
     /**
      * Add {@link Byte} param.
      *
      * @param key   param name.
      * @param value param value, for example, the result is {@code 1} of {@code 0x01}.
-     * @return {@link IBasicRequest}.
+     * @return {@link Child}.
      */
-    IBasicRequest add(String key, byte value);
+    Child add(String key, byte value);
 
     /**
      * Add {@link String} param.
      *
      * @param key   param name.
      * @param value param value.
-     * @return {@link IBasicRequest}.
+     * @return {@link Child}.
      */
-    IBasicRequest add(String key, String value);
+    Child add(String key, String value);
 
     /**
      * Add {@link String} param.
      *
      * @param key   param name.
      * @param value param value.
-     * @return {@link IBasicRequest}.
+     * @return {@link Child}.
      */
-    IBasicRequest set(String key, String value);
+    Child set(String key, String value);
 
     /**
      * Add {@link Binary} param.
      *
      * @param key    param name.
      * @param binary param value.
-     * @return {@link IBasicRequest}.
+     * @return {@link Child}.
      */
-    IBasicRequest add(String key, Binary binary);
+    Child add(String key, Binary binary);
 
     /**
      * Set {@link Binary} param.
      *
      * @param key    param name.
      * @param binary param value.
-     * @return {@link IBasicRequest}.
+     * @return {@link Child}.
      */
-    IBasicRequest set(String key, Binary binary);
+    Child set(String key, Binary binary);
 
     /**
      * Add {@link File} param.
      *
      * @param key  param name.
      * @param file param value.
-     * @return {@link IBasicRequest}.
+     * @return {@link Child}.
      */
-    IBasicRequest add(String key, File file);
+    Child add(String key, File file);
 
     /**
      * Set {@link File} param.
      *
      * @param key  param name.
      * @param file param value.
-     * @return {@link IBasicRequest}.
+     * @return {@link Child}.
      */
-    IBasicRequest set(String key, File file);
+    Child set(String key, File file);
 
     /**
      * Add {@link Binary} param;
      *
      * @param key      param name.
      * @param binaries param value.
-     * @return {@link IBasicRequest}.
+     * @return {@link Child}.
      */
-    IBasicRequest add(String key, List<Binary> binaries);
+    Child add(String key, List<Binary> binaries);
 
     /**
      * Set {@link Binary} param.
      *
      * @param key      param name.
      * @param binaries param value.
-     * @return {@link IBasicRequest}.
+     * @return {@link Child}.
      */
-    IBasicRequest set(String key, List<Binary> binaries);
+    Child set(String key, List<Binary> binaries);
 
     /**
      * Add all param.
      *
      * @param params params {@link Map}.
-     * @return {@link IBasicRequest}.
+     * @return {@link Child}.
      */
-    IBasicRequest add(Map<String, String> params);
+    Child add(Map<String, String> params);
 
     /**
      * Set all param.
      *
      * @param params params {@link Map}.
-     * @return {@link IBasicRequest}.
+     * @return {@link Child}.
      */
-    IBasicRequest set(Map<String, String> params);
+    Child set(Map<String, String> params);
 
     /**
      * Remove a request param by key.
      *
      * @param key key
-     * @return {@link IBasicRequest}.
+     * @return {@link Child}.
      */
-    IBasicRequest remove(String key);
+    Child remove(String key);
 
     /**
      * Remove all request param.
      *
-     * @return {@link IBasicRequest}.
+     * @return {@link Child}.
      */
-    IBasicRequest removeAll();
+    Child removeAll();
 
     /**
      * Settings you want to push data and contentType. Can only accept {@link java.io.ByteArrayInputStream} and
@@ -378,19 +451,19 @@ public interface IBasicRequest extends Startable, Cancelable, Finishable {
      * <p>It is important to note that the request method must be {@link RequestMethod#PUT},
      * {@link RequestMethod#POST}, {@link RequestMethod#PATCH} in one of them.</p>
      *
-     * @param requestBody There can be a file, pictures, any other data flow.You don't need to close it, NoHttp when
+     * @param requestBody There can be a file, pictures, any other data flow.You don't need to close it, CoreConfig when
      *                    complete request will be automatically closed.
      * @param contentType such as: "{@value Headers#HEAD_VALUE_ACCEPT_APPLICATION_XML}{@code ; charset=utf-8}",
      *                    "{@value Headers#HEAD_VALUE_ACCEPT_APPLICATION_JSON}{@code ; charset=utf-8}" or "{@value
      *                    Headers#HEAD_VALUE_ACCEPT_MULTIPART_FORM_DATA}". Note, does not need to include quotation
      *                    marks.
-     * @return {@link IBasicRequest}.
+     * @return {@link Child}.
      * @see #setDefineRequestBody(String, String)
      * @see #setDefineRequestBodyForJson(JSONObject)
      * @see #setDefineRequestBodyForJson(String)
      * @see #setDefineRequestBodyForXML(String)
      */
-    IBasicRequest setDefineRequestBody(InputStream requestBody, String contentType);
+    Child setDefineRequestBody(InputStream requestBody, String contentType);
 
 
     /**
@@ -400,16 +473,16 @@ public interface IBasicRequest extends Startable, Cancelable, Finishable {
      *
      * @param requestBody string body.
      * @param contentType such as: "{@value Headers#HEAD_VALUE_ACCEPT_APPLICATION_JSON}" or "{@value
-     * Headers#HEAD_VALUE_ACCEPT_APPLICATION_XML}". Note, does not need to include quotation marks.
+     *                    Headers#HEAD_VALUE_ACCEPT_APPLICATION_XML}". Note, does not need to include quotation marks.
      *                    <p>If ContentType parameter into "" or null, the default for the {@value
      *                    Headers#HEAD_VALUE_ACCEPT_APPLICATION_JSON}.</p>
-     * @return {@link IBasicRequest}.
+     * @return {@link Child}.
      * @see #setDefineRequestBody(InputStream, String)
      * @see #setDefineRequestBodyForJson(JSONObject)
      * @see #setDefineRequestBodyForJson(String)
      * @see #setDefineRequestBodyForXML(String)
      */
-    IBasicRequest setDefineRequestBody(String requestBody, String contentType);
+    Child setDefineRequestBody(String requestBody, String contentType);
 
     /**
      * Set the request json body.
@@ -418,13 +491,13 @@ public interface IBasicRequest extends Startable, Cancelable, Finishable {
      * <p>The content type is {@value Headers#HEAD_VALUE_ACCEPT_APPLICATION_JSON}</p>
      *
      * @param jsonBody json body.
-     * @return {@link IBasicRequest}.
+     * @return {@link Child}.
      * @see #setDefineRequestBody(InputStream, String)
      * @see #setDefineRequestBody(String, String)
      * @see #setDefineRequestBodyForJson(JSONObject)
      * @see #setDefineRequestBodyForXML(String)
      */
-    IBasicRequest setDefineRequestBodyForJson(String jsonBody);
+    Child setDefineRequestBodyForJson(String jsonBody);
 
     /**
      * Set the request json body.
@@ -433,13 +506,13 @@ public interface IBasicRequest extends Startable, Cancelable, Finishable {
      * <p>The content type is {@value Headers#HEAD_VALUE_ACCEPT_APPLICATION_JSON}</p>
      *
      * @param jsonBody json body.
-     * @return {@link IBasicRequest}.
+     * @return {@link Child}.
      * @see #setDefineRequestBody(InputStream, String)
      * @see #setDefineRequestBody(String, String)
      * @see #setDefineRequestBodyForJson(String)
      * @see #setDefineRequestBodyForXML(String)
      */
-    IBasicRequest setDefineRequestBodyForJson(JSONObject jsonBody);
+    Child setDefineRequestBodyForJson(JSONObject jsonBody);
 
     /**
      * Set the request XML body.
@@ -448,35 +521,35 @@ public interface IBasicRequest extends Startable, Cancelable, Finishable {
      * <p>The content type is {@value Headers#HEAD_VALUE_ACCEPT_APPLICATION_XML}</p>
      *
      * @param xmlBody xml body.
-     * @return {@link IBasicRequest}.
+     * @return {@link Child}.
      * @see #setDefineRequestBody(InputStream, String)
      * @see #setDefineRequestBody(String, String)
      * @see #setDefineRequestBody(String, String)
      * @see #setDefineRequestBodyForJson(String)
      */
-    IBasicRequest setDefineRequestBodyForXML(String xmlBody);
+    Child setDefineRequestBodyForXML(String xmlBody);
 
     /**
      * Sets redirect interface.
      *
      * @param redirectHandler {@link RedirectHandler}.
-     * @return {@link IBasicRequest}.
+     * @return {@link Child}.
      */
-    IBasicRequest setRedirectHandler(RedirectHandler redirectHandler);
+    Child setRedirectHandler(RedirectHandler redirectHandler);
 
     /**
      * Set tag of task, At the end of the task is returned to you.
      *
      * @param tag {@link Object}.
-     * @return {@link IBasicRequest}.
+     * @return {@link Child}.
      */
-    IBasicRequest setTag(Object tag);
+    Child setTag(Object tag);
 
      /*
-     * =====================================================
-     * ||                     Server                      ||
-     * =====================================================
-     */
+      * =====================================================
+      * ||                     Server                      ||
+      * =====================================================
+      */
 
     /**
      * Return url of request.
@@ -609,9 +682,9 @@ public interface IBasicRequest extends Startable, Cancelable, Finishable {
      * Set cancel sign.
      *
      * @param object a object.
-     * @return {@link IBasicRequest}.
+     * @return {@link Child}.
      */
-    IBasicRequest setCancelSign(Object object);
+    Child setCancelSign(Object object);
 
     /**
      * Cancel operation by contrast the sign.

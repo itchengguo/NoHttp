@@ -19,8 +19,9 @@ import com.yanzhenjie.nohttp.Delivery;
 import com.yanzhenjie.nohttp.HandlerDelivery;
 import com.yanzhenjie.nohttp.Logger;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.PriorityBlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -34,15 +35,10 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class DownloadQueue {
 
-    private AtomicInteger mInteger = new AtomicInteger();
-    /**
-     * Save un finish task.
-     */
-    private final BlockingQueue<DownloadRequest> mUnFinishQueue = new LinkedBlockingDeque<>();
-    /**
-     * Save download task.
-     */
+    private final AtomicInteger mInteger = new AtomicInteger();
+    private final Map<DownloadRequest, ListenerEntity> mListenerEntityMap = new HashMap<>();
     private final BlockingQueue<DownloadRequest> mDownloadQueue = new PriorityBlockingQueue<>();
+
     /**
      * Delivery.
      */
@@ -70,7 +66,7 @@ public class DownloadQueue {
     public void start() {
         stop();
         for (int i = 0; i < mDispatchers.length; i++) {
-            DownloadDispatcher networkDispatcher = new DownloadDispatcher(mUnFinishQueue, mDownloadQueue, mDelivery);
+            DownloadDispatcher networkDispatcher = new DownloadDispatcher(mListenerEntityMap, mDownloadQueue, mDelivery);
             mDispatchers[i] = networkDispatcher;
             networkDispatcher.start();
         }
@@ -85,13 +81,11 @@ public class DownloadQueue {
      * @param downloadListener download results monitor.
      */
     public void add(int what, DownloadRequest downloadRequest, DownloadListener downloadListener) {
-        if (downloadRequest.inQueue())
+        if (mListenerEntityMap.get(downloadRequest) != null)
             Logger.w("This request has been in the queue");
         else {
-            downloadRequest.setQueue(mUnFinishQueue);
-            downloadRequest.onPreResponse(what, downloadListener);
             downloadRequest.setSequence(mInteger.incrementAndGet());
-            mUnFinishQueue.add(downloadRequest);
+            mListenerEntityMap.put(downloadRequest, new ListenerEntity(what, downloadListener));
             mDownloadQueue.add(downloadRequest);
         }
     }
@@ -111,7 +105,7 @@ public class DownloadQueue {
      * @return size.
      */
     public int unFinishSize() {
-        return mUnFinishQueue.size();
+        return mListenerEntityMap.size();
     }
 
     /**
@@ -130,8 +124,8 @@ public class DownloadQueue {
      * @param sign this sign will be the same as sign's DownloadRequest, and if it is the same, then cancel the task.
      */
     public void cancelBySign(Object sign) {
-        synchronized (mUnFinishQueue) {
-            for (DownloadRequest downloadRequest : mUnFinishQueue)
+        synchronized (mListenerEntityMap) {
+            for (DownloadRequest downloadRequest : mListenerEntityMap.keySet())
                 downloadRequest.cancelBySign(sign);
         }
     }
@@ -140,8 +134,8 @@ public class DownloadQueue {
      * Cancel all requests, Already in the execution of the request can't use this method.
      */
     public void cancelAll() {
-        synchronized (mUnFinishQueue) {
-            for (DownloadRequest downloadRequest : mUnFinishQueue)
+        synchronized (mListenerEntityMap) {
+            for (DownloadRequest downloadRequest : mListenerEntityMap.keySet())
                 downloadRequest.cancel();
         }
     }

@@ -17,8 +17,16 @@ package com.yanzhenjie.nohttp.rest;
 
 import android.os.SystemClock;
 
+import com.yanzhenjie.nohttp.Connection;
+import com.yanzhenjie.nohttp.Headers;
+import com.yanzhenjie.nohttp.HttpConnection;
+import com.yanzhenjie.nohttp.IBasicRequest;
+import com.yanzhenjie.nohttp.NetworkExecutor;
 import com.yanzhenjie.nohttp.cache.CacheEntity;
 import com.yanzhenjie.nohttp.error.NotFoundCacheError;
+import com.yanzhenjie.nohttp.tools.CacheStore;
+import com.yanzhenjie.nohttp.tools.HeaderUtil;
+import com.yanzhenjie.nohttp.tools.IOUtils;
 
 import java.io.IOException;
 
@@ -26,9 +34,7 @@ import java.io.IOException;
  * <p>
  * Parsing the Http protocol related attributes, complete and the interaction of the network.
  * </p>
- * Created in Jul 28, 2015 7:33:22 PM.
- *
- * @author Yan Zhenjie.
+ * Created by Yan Zhenjie on Jul 28, 2015.
  */
 public class RestProtocol {
 
@@ -59,8 +65,12 @@ public class RestProtocol {
                 protocol.exception = e;
             }
         }
-        return new RestResponse<>(request, protocol.fromCache, protocol.headers, result,
-                SystemClock.elapsedRealtime() - startTime, protocol.exception);
+        return new RestResponse<>(request,
+                protocol.fromCache,
+                protocol.headers,
+                result,
+                SystemClock.elapsedRealtime() - startTime,
+                protocol.exception);
     }
 
     private Protocol requestCacheOrNetwork(CacheMode cacheMode, CacheEntity localCache, IBasicRequest request) {

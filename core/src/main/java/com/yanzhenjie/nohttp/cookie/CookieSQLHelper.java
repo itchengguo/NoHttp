@@ -22,9 +22,7 @@ import com.yanzhenjie.nohttp.db.BasicSQLHelper;
 
 /**
  * <p>Cookie database operation class.</p>
- * Created in Dec 18, 2015 6:30:59 PM.
- *
- * @author Yan Zhenjie.
+ * Created by Yan Zhenjie on Dec 18, 2015.
  */
 class CookieSQLHelper extends BasicSQLHelper {
 

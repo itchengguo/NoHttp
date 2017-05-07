@@ -20,9 +20,10 @@ import java.util.List;
 import java.util.TreeMap;
 
 /**
- * Created on 2016/6/23.
+ * Created by Yan Zhenjie on 2016/6/23.
  *
- * @author Yan Zhenjie.
+ * @param <K> key.
+ * @param <V> value.
  */
 public class TreeMultiValueMap<K, V> extends BasicMultiValueMap<K, V> {
 

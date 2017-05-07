@@ -21,9 +21,10 @@ import java.util.Set;
 
 /**
  * <p>Can save multiple the value of the map.</p>
- * Created in Jan 10, 2016 5:00:07 PM.
+ * Created by Yan Zhenjie on Jan 10, 2016.
  *
- * @author Yan Zhenjie.
+ * @param <K> key.
+ * @param <V> value.
  */
 public interface MultiValueMap<K, V> {
 
