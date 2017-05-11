@@ -52,7 +52,9 @@ public class URLConnectionNetwork implements Network {
 
     @Override
     public InputStream getServerStream(int responseCode, Headers headers) throws IOException {
-        return URLConnectionNetworkExecutor.getServerStream(responseCode, headers.getContentEncoding(),
+        return URLConnectionNetworkExecutor.getServerStream(
+                responseCode,
+                headers.getContentEncoding(),
                 mUrlConnection);
     }
 

@@ -25,7 +25,7 @@ import com.yanzhenjie.nohttp.RequestMethod;
  * </p>
  * Created by Yan Zhenjie on 2016/8/20.
  */
-public abstract class ProtocolRequest<Result> extends BasicRequest implements IProtocolRequest<Result> {
+public abstract class ProtocolRequest<Result> extends BasicRequest implements IProtocolRequest<Result, BasicRequest> {
 
     /**
      * Cache key.
@@ -77,15 +77,5 @@ public abstract class ProtocolRequest<Result> extends BasicRequest implements IP
     public CacheMode getCacheMode() {
         return this.mCacheMode;
     }
-
-    /**
-     * Parse request results for generic objects.
-     *
-     * @param responseHeaders response headers of server.
-     * @param responseBody    response data of server.
-     * @return your response result.
-     * @throws Exception parse error.
-     */
-    public abstract Result parseResponse(Headers responseHeaders, byte[] responseBody) throws Exception;
 
 }

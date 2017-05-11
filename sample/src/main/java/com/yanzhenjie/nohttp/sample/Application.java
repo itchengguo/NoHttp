@@ -15,8 +15,8 @@
  */
 package com.yanzhenjie.nohttp.sample;
 
+import com.yanzhenjie.nohttp.CoreConfig;
 import com.yanzhenjie.nohttp.Logger;
-import com.yanzhenjie.nohttp.NoHttp;
 import com.yanzhenjie.nohttp.OkHttpNetworkExecutor;
 import com.yanzhenjie.nohttp.cache.DBCacheStore;
 import com.yanzhenjie.nohttp.cookie.DBCookieStore;
@@ -41,22 +41,20 @@ public class Application extends android.app.Application {
         // 一般情况下你只需要这样初始化：
 //        NoHttp.initialize(this);
 
-        // 如果你需要自定义配置：
-        NoHttp.initialize(this, new NoHttp.Config()
-                // 设置全局连接超时时间，单位毫秒，默认10s。
-                .setConnectTimeout(30 * 1000)
-                // 设置全局服务器响应超时时间，单位毫秒，默认10s。
-                .setReadTimeout(30 * 1000)
-                // 配置缓存，默认保存数据库DBCacheStore，保存到SD卡使用DiskCacheStore。
-                .setCacheStore(
-                        new DBCacheStore(this).setEnable(true) // 如果不使用缓存，设置setEnable(false)禁用。
-                )
-                // 配置Cookie，默认保存数据库DBCookieStore，开发者可以自己实现。
-                .setCookieStore(
-                        new DBCookieStore(this).setEnable(true) // 如果不维护cookie，设置false禁用。
-                )
-                // 配置网络层，默认使用URLConnection，如果想用OkHttp：OkHttpNetworkExecutor。
-                .setNetworkExecutor(new OkHttpNetworkExecutor())
+        CoreConfig.initialize(
+                CoreConfig.newBuilder(this)
+                        .setCookieStore(
+                                DBCookieStore.newBuilder(_instance)
+                                        .build()
+                        )
+                        .setCacheStore(
+                                DBCacheStore.newBuilder(_instance)
+                                        .build()
+                        )
+                        .setConnectTimeout(20 * 1000)
+                        .setReadTimeout(20 * 1000)
+                        .setNetworkExecutor(new OkHttpNetworkExecutor())
+                        .build()
         );
 
         // 如果你需要用OkHttp，请依赖下面的项目，version表示版本号：

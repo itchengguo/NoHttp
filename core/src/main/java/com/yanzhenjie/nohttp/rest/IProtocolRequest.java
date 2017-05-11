@@ -15,7 +15,6 @@
  */
 package com.yanzhenjie.nohttp.rest;
 
-import com.yanzhenjie.nohttp.BasicRequest;
 import com.yanzhenjie.nohttp.Headers;
 import com.yanzhenjie.nohttp.IBasicRequest;
 
@@ -25,7 +24,7 @@ import com.yanzhenjie.nohttp.IBasicRequest;
  *
  * @param <Result> result.
  */
-public interface IProtocolRequest<Result> extends IBasicRequest<BasicRequest> {
+public interface IProtocolRequest<Result, Child extends IBasicRequest> extends IBasicRequest<Child> {
 
     /**
      * Set the request cache primary key, it should be globally unique.
