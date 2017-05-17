@@ -22,10 +22,14 @@ import com.yanzhenjie.nohttp.cache.DBCacheStore;
 import com.yanzhenjie.nohttp.cookie.DBCookieStore;
 import com.yanzhenjie.nohttp.tools.CacheStore;
 
-import java.net.CookieHandler;
 import java.net.CookieManager;
 import java.net.CookiePolicy;
 import java.net.CookieStore;
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.SSLSocketFactory;
 
 /**
  * <p>
@@ -35,131 +39,97 @@ import java.net.CookieStore;
  */
 public class CoreConfig {
 
-    private static CoreConfig instance;
-
     public static Builder newBuilder(Context context) {
         return new Builder(context);
-    }
-
-    /**
-     * Initialize CoreConfig, should invoke on {@link android.app.Application#onCreate()}.
-     *
-     * @param coreConfig {@link CoreConfig}.
-     */
-    public static void initialize(CoreConfig coreConfig) {
-        instance = coreConfig;
-    }
-
-    /**
-     * Gets instance for config.
-     *
-     * @return {@link CoreConfig}.
-     */
-    public static CoreConfig getInstance() {
-        testInitialize();
-        return instance;
-    }
-
-    /**
-     * Gets context of app.
-     *
-     * @return {@link Context}.
-     */
-    public static Context getContext() {
-        testInitialize();
-        return getInstance().mContext;
-    }
-
-    /**
-     * Test initialized. {@link #initialize(CoreConfig)}
-     */
-    private static void testInitialize() {
-        if (instance == null)
-            throw new ExceptionInInitializerError("Please invoke CoreConfig#initialize(CoreConfig) on Application#onCreate()");
     }
 
     private Context mContext;
     private int mConnectTimeout;
     private int mReadTimeout;
+    private Map<String, String> mParams;
 
     private CookieManager mCookieManager;
     private NetworkExecutor mNetworkExecutor;
     private CacheStore<CacheEntity> mCacheStore;
 
+    private SSLSocketFactory mSslSocketFactory;
+    private HostnameVerifier mHostnameVerifier;
+
     private CoreConfig(Builder builder) {
-        this.mContext = builder.mContext;
-        this.mConnectTimeout = builder.mConnectTimeout;
-        this.mReadTimeout = builder.mReadTimeout;
+        this.mContext = builder.context.getApplicationContext();
+        this.mConnectTimeout = builder.connectTimeout;
+        this.mReadTimeout = builder.readTimeout;
+        this.mParams = builder.params;
 
-        CookieStore cookieStore = builder.mCookieStore == null ?
-                DBCookieStore.newBuilder(mContext).build() : builder.mCookieStore;
+        CookieStore cookieStore = builder.cookieStore == null ?
+                DBCookieStore.newBuilder(mContext).build() : builder.cookieStore;
         this.mCookieManager = new CookieManager(cookieStore, CookiePolicy.ACCEPT_ALL);
-        this.mCacheStore = builder.mCacheStore == null ?
-                DBCacheStore.newBuilder(mContext).build() : builder.mCacheStore;
-        this.mNetworkExecutor = builder.mNetworkExecutor == null ?
-                URLConnectionNetworkExecutor.newBuilder().build() : builder.mNetworkExecutor;
+        this.mCacheStore = builder.cacheStore == null ?
+                DBCacheStore.newBuilder(mContext).build() : builder.cacheStore;
+        this.mNetworkExecutor = builder.networkExecutor == null ?
+                URLConnectionNetworkExecutor.newBuilder().build() : builder.networkExecutor;
+
+        this.mSslSocketFactory = builder.sslSocketFactory;
+        this.mHostnameVerifier = builder.hostnameVerifier;
     }
 
+    public Context getContext() {
+        return mContext;
+    }
 
-    /**
-     * Gets connect timeout.
-     *
-     * @return ms.
-     */
     public int getConnectTimeout() {
-        return getInstance().mConnectTimeout;
+        return mConnectTimeout;
     }
 
-    /**
-     * Gets read timeout.
-     *
-     * @return ms.
-     */
     public int getReadTimeout() {
-        return getInstance().mReadTimeout;
+        return mReadTimeout;
     }
 
-    /**
-     * Gets cookie manager.
-     *
-     * @return {@link CookieHandler}.
-     */
+    public Map<String, String> getParams() {
+        return mParams;
+    }
+
     public CookieManager getCookieManager() {
-        return getInstance().mCookieManager;
+        return mCookieManager;
     }
 
-    /**
-     * Gets cache store.
-     *
-     * @return {@link CacheStore}.
-     */
-    public CacheStore<CacheEntity> getCacheStore() {
-        return getInstance().mCacheStore;
-    }
-
-    /**
-     * Gets executor implement of http.
-     *
-     * @return {@link NetworkExecutor}.
-     */
     public NetworkExecutor getNetworkExecutor() {
-        return getInstance().mNetworkExecutor;
+        return mNetworkExecutor;
     }
 
+    public CacheStore<CacheEntity> getCacheStore() {
+        return mCacheStore;
+    }
+
+    public SSLSocketFactory getSSLSocketFactory() {
+        return mSslSocketFactory;
+    }
+
+    public HostnameVerifier getHostnameVerifier() {
+        return mHostnameVerifier;
+    }
+
+    /**
+     * The Builder of Configuration.
+     */
     public static final class Builder {
 
-        private Context mContext;
+        private Context context;
 
-        private int mConnectTimeout = 10 * 1000;
-        private int mReadTimeout = 10 * 1000;
+        private int connectTimeout = 10 * 1000;
+        private int readTimeout = 10 * 1000;
+        private Map<String, String> params = new HashMap<>();
 
-        private CookieStore mCookieStore;
-        private CacheStore<CacheEntity> mCacheStore;
+        private CookieStore cookieStore;
+        private CacheStore<CacheEntity> cacheStore;
 
-        private NetworkExecutor mNetworkExecutor;
+        private NetworkExecutor networkExecutor;
+
+        private SSLSocketFactory sslSocketFactory;
+        private HostnameVerifier hostnameVerifier;
 
         private Builder(Context context) {
-            this.mContext = context.getApplicationContext();
+            this.context = context;
         }
 
         /**
@@ -168,8 +138,8 @@ public class CoreConfig {
          * @param timeout ms.
          * @return {@link Builder}.
          */
-        public Builder setConnectTimeout(int timeout) {
-            this.mConnectTimeout = timeout;
+        public Builder connectTimeout(int timeout) {
+            this.connectTimeout = timeout;
             return this;
         }
 
@@ -179,8 +149,20 @@ public class CoreConfig {
          * @param timeout ms.
          * @return {@link Builder}.
          */
-        public Builder setReadTimeout(int timeout) {
-            this.mReadTimeout = timeout;
+        public Builder readTimeout(int timeout) {
+            this.readTimeout = timeout;
+            return this;
+        }
+
+        /**
+         * Set generic param.
+         *
+         * @param key   key.
+         * @param value value.
+         * @return {@link Builder}.
+         */
+        public Builder addGenericParam(String key, String value) {
+            params.put(key, value);
             return this;
         }
 
@@ -190,8 +172,8 @@ public class CoreConfig {
          * @param cookieStore {@link CookieStore}.
          * @return {@link Builder}.
          */
-        public Builder setCookieStore(CookieStore cookieStore) {
-            this.mCookieStore = cookieStore;
+        public Builder cookieStore(CookieStore cookieStore) {
+            this.cookieStore = cookieStore;
             return this;
         }
 
@@ -201,8 +183,8 @@ public class CoreConfig {
          * @param cacheStore {@link CacheStore}.
          * @return {@link Builder}.
          */
-        public Builder setCacheStore(CacheStore<CacheEntity> cacheStore) {
-            this.mCacheStore = cacheStore;
+        public Builder cacheStore(CacheStore<CacheEntity> cacheStore) {
+            this.cacheStore = cacheStore;
             return this;
         }
 
@@ -212,8 +194,30 @@ public class CoreConfig {
          * @param executor {@link NetworkExecutor}.
          * @return {@link Builder}.
          */
-        public Builder setNetworkExecutor(NetworkExecutor executor) {
-            this.mNetworkExecutor = executor;
+        public Builder networkExecutor(NetworkExecutor executor) {
+            this.networkExecutor = executor;
+            return this;
+        }
+
+        /**
+         * Set default SSLSocketFactory.
+         *
+         * @param sslSocketFactory {@link SSLSocketFactory}.
+         * @return {@link Builder}.
+         */
+        public Builder sslSocketFactory(SSLSocketFactory sslSocketFactory) {
+            this.sslSocketFactory = sslSocketFactory;
+            return this;
+        }
+
+        /**
+         * Set default HostnameVerifier.
+         *
+         * @param hostnameVerifier {@link HostnameVerifier}.
+         * @return {@link Builder}.
+         */
+        public Builder hostnameVerifier(HostnameVerifier hostnameVerifier) {
+            this.hostnameVerifier = hostnameVerifier;
             return this;
         }
 

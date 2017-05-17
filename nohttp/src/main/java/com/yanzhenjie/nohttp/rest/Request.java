@@ -25,7 +25,7 @@ import com.yanzhenjie.nohttp.Priority;
  *
  * @author Yan Zhenjie.
  */
-public interface Request<Result> extends IProtocolRequest<Result>, Comparable<Request> {
+public interface Request<Result> extends IProtocolRequest<Result, Request<Result>>, Comparable<Request<Result>> {
 
     /**
      * Set the priority of the request object. The default priority is {@link Priority#DEFAULT}.

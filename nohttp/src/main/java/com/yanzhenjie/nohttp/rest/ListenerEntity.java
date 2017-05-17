@@ -15,17 +15,19 @@
  */
 package com.yanzhenjie.nohttp.rest;
 
+import java.lang.ref.WeakReference;
+
 /**
  * Created by Yan Zhenjie on 2017/5/7.
  */
 public class ListenerEntity<T> {
 
     private final int what;
-    private final OnResponseListener<T> responseListener;
+    private final WeakReference<OnResponseListener<T>> listenerWeakReference;
 
     public ListenerEntity(int what, OnResponseListener<T> responseListener) {
         this.what = what;
-        this.responseListener = responseListener;
+        this.listenerWeakReference = new WeakReference<>(responseListener);
     }
 
     public int what() {
@@ -33,6 +35,6 @@ public class ListenerEntity<T> {
     }
 
     public OnResponseListener<T> responseListener() {
-        return responseListener;
+        return listenerWeakReference.get();
     }
 }

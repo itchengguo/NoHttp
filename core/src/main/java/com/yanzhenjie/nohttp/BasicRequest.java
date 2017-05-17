@@ -49,7 +49,7 @@ import javax.net.ssl.SSLSocketFactory;
  * Created by Yan Zhenjie on Nov 4, 2015.
  */
 @SuppressWarnings("unchecked")
-public class BasicRequest implements IBasicRequest<BasicRequest> {
+public abstract class BasicRequest<Child extends IBasicRequest> implements IBasicRequest<Child> {
 
     private final String boundary = createBoundary();
     private final String startBoundary = "--" + boundary;
@@ -196,10 +196,10 @@ public class BasicRequest implements IBasicRequest<BasicRequest> {
     }
 
     @Override
-    public BasicRequest setMultipartFormEnable(boolean enable) {
+    public Child setMultipartFormEnable(boolean enable) {
         validateMethodForBody("Form body");
         isMultipartFormEnable = enable;
-        return this;
+        return (Child) this;
     }
 
     @Override
@@ -208,9 +208,9 @@ public class BasicRequest implements IBasicRequest<BasicRequest> {
     }
 
     @Override
-    public BasicRequest setProxy(Proxy proxy) {
+    public Child setProxy(Proxy proxy) {
         this.mProxy = proxy;
-        return this;
+        return (Child) this;
     }
 
     @Override
@@ -219,9 +219,9 @@ public class BasicRequest implements IBasicRequest<BasicRequest> {
     }
 
     @Override
-    public BasicRequest setSSLSocketFactory(SSLSocketFactory socketFactory) {
+    public Child setSSLSocketFactory(SSLSocketFactory socketFactory) {
         mSSLSocketFactory = socketFactory;
-        return this;
+        return (Child) this;
     }
 
     @Override
@@ -230,9 +230,9 @@ public class BasicRequest implements IBasicRequest<BasicRequest> {
     }
 
     @Override
-    public BasicRequest setHostnameVerifier(HostnameVerifier hostnameVerifier) {
+    public Child setHostnameVerifier(HostnameVerifier hostnameVerifier) {
         mHostnameVerifier = hostnameVerifier;
-        return this;
+        return (Child) this;
     }
 
     @Override
@@ -241,9 +241,9 @@ public class BasicRequest implements IBasicRequest<BasicRequest> {
     }
 
     @Override
-    public BasicRequest setConnectTimeout(int connectTimeout) {
+    public Child setConnectTimeout(int connectTimeout) {
         mConnectTimeout = connectTimeout;
-        return this;
+        return (Child) this;
     }
 
     @Override
@@ -252,9 +252,9 @@ public class BasicRequest implements IBasicRequest<BasicRequest> {
     }
 
     @Override
-    public BasicRequest setReadTimeout(int readTimeout) {
+    public Child setReadTimeout(int readTimeout) {
         mReadTimeout = readTimeout;
-        return this;
+        return (Child) this;
     }
 
     @Override
@@ -263,34 +263,34 @@ public class BasicRequest implements IBasicRequest<BasicRequest> {
     }
 
     @Override
-    public BasicRequest addHeader(String key, String value) {
+    public Child addHeader(String key, String value) {
         mHeaders.add(key, value);
-        return this;
+        return (Child) this;
     }
 
     @Override
-    public BasicRequest setHeader(String key, String value) {
+    public Child setHeader(String key, String value) {
         mHeaders.set(key, value);
-        return this;
+        return (Child) this;
     }
 
     @Override
-    public BasicRequest addHeader(HttpCookie cookie) {
+    public Child addHeader(HttpCookie cookie) {
         if (cookie != null)
             mHeaders.add(Headers.HEAD_KEY_COOKIE, cookie.getName() + "=" + cookie.getValue());
-        return this;
+        return (Child) this;
     }
 
     @Override
-    public BasicRequest removeHeader(String key) {
+    public Child removeHeader(String key) {
         mHeaders.remove(key);
-        return this;
+        return (Child) this;
     }
 
     @Override
-    public BasicRequest removeAllHeader() {
+    public Child removeAllHeader() {
         mHeaders.clear();
-        return this;
+        return (Child) this;
     }
 
     @Override
@@ -299,15 +299,15 @@ public class BasicRequest implements IBasicRequest<BasicRequest> {
     }
 
     @Override
-    public BasicRequest setAccept(String accept) {
+    public Child setAccept(String accept) {
         mHeaders.set(Headers.HEAD_KEY_ACCEPT, accept);
-        return this;
+        return (Child) this;
     }
 
     @Override
-    public BasicRequest setAcceptLanguage(String acceptLanguage) {
+    public Child setAcceptLanguage(String acceptLanguage) {
         mHeaders.set(Headers.HEAD_KEY_ACCEPT_LANGUAGE, acceptLanguage);
-        return this;
+        return (Child) this;
     }
 
     @Override
@@ -322,9 +322,9 @@ public class BasicRequest implements IBasicRequest<BasicRequest> {
     }
 
     @Override
-    public BasicRequest setContentType(String contentType) {
+    public Child setContentType(String contentType) {
         mHeaders.set(Headers.HEAD_KEY_CONTENT_TYPE, contentType);
-        return this;
+        return (Child) this;
     }
 
     @Override
@@ -339,15 +339,15 @@ public class BasicRequest implements IBasicRequest<BasicRequest> {
     }
 
     @Override
-    public BasicRequest setUserAgent(String userAgent) {
+    public Child setUserAgent(String userAgent) {
         mHeaders.set(Headers.HEAD_KEY_USER_AGENT, userAgent);
-        return this;
+        return (Child) this;
     }
 
     @Override
-    public BasicRequest setRetryCount(int count) {
+    public Child setRetryCount(int count) {
         this.mRetryCount = count;
-        return this;
+        return (Child) this;
     }
 
     @Override
@@ -356,9 +356,9 @@ public class BasicRequest implements IBasicRequest<BasicRequest> {
     }
 
     @Override
-    public BasicRequest setParamsEncoding(String encoding) {
+    public Child setParamsEncoding(String encoding) {
         this.mParamEncoding = encoding;
-        return this;
+        return (Child) this;
     }
 
     @Override
@@ -369,104 +369,104 @@ public class BasicRequest implements IBasicRequest<BasicRequest> {
     }
 
     @Override
-    public BasicRequest path(int path) {
+    public Child path(int path) {
         return path(Integer.toString(path));
     }
 
     @Override
-    public BasicRequest path(long path) {
+    public Child path(long path) {
         return path(Long.toString(path));
     }
 
     @Override
-    public BasicRequest path(short path) {
+    public Child path(short path) {
         return path(Integer.toString(path));
     }
 
     @Override
-    public BasicRequest path(float path) {
+    public Child path(float path) {
         return path(Float.toString(path));
     }
 
     @Override
-    public BasicRequest path(double path) {
+    public Child path(double path) {
         return path(Double.toString(path));
     }
 
     @Override
-    public BasicRequest path(boolean path) {
+    public Child path(boolean path) {
         return path(Boolean.toString(path));
     }
 
     @Override
-    public BasicRequest path(char path) {
+    public Child path(char path) {
         return path(String.valueOf(path));
     }
 
     @Override
-    public BasicRequest path(byte path) {
+    public Child path(byte path) {
         return path(Integer.toString(path));
     }
 
     @Override
-    public BasicRequest path(String path) {
+    public Child path(String path) {
         url += url.endsWith("/") ? path : ("/" + path);
-        return this;
+        return (Child) this;
     }
 
     @Override
-    public BasicRequest add(String key, int value) {
+    public Child add(String key, int value) {
         return add(key, Integer.toString(value));
     }
 
     @Override
-    public BasicRequest add(String key, long value) {
+    public Child add(String key, long value) {
         return add(key, Long.toString(value));
     }
 
     @Override
-    public BasicRequest add(String key, boolean value) {
+    public Child add(String key, boolean value) {
         return add(key, Boolean.toString(value));
     }
 
     @Override
-    public BasicRequest add(String key, char value) {
+    public Child add(String key, char value) {
         return add(key, String.valueOf(value));
     }
 
     @Override
-    public BasicRequest add(String key, double value) {
+    public Child add(String key, double value) {
         return add(key, Double.toString(value));
     }
 
     @Override
-    public BasicRequest add(String key, float value) {
+    public Child add(String key, float value) {
         return add(key, Float.toString(value));
     }
 
     @Override
-    public BasicRequest add(String key, short value) {
+    public Child add(String key, short value) {
         add(key, Integer.toString(value));
-        return this;
+        return (Child) this;
     }
 
     @Override
-    public BasicRequest add(String key, byte value) {
+    public Child add(String key, byte value) {
         return add(key, Integer.toString(value));
     }
 
     @Override
-    public BasicRequest add(String key, String value) {
+    public Child add(String key, String value) {
         value = value == null ? "" : value;
         mParamKeyValues.add(key, value);
-        return this;
+        return (Child) this;
     }
 
     @Override
-    public BasicRequest set(String key, String value) {
+    public Child set(String key, String value) {
         value = value == null ? "" : value;
         mParamKeyValues.set(key, value);
-        return this;
+        return (Child) this;
     }
 
     /**
@@ -481,79 +481,79 @@ public class BasicRequest implements IBasicRequest<BasicRequest> {
     }
 
     @Override
-    public BasicRequest add(String key, Binary binary) {
+    public Child add(String key, Binary binary) {
         validateMethodForBody("The Binary param");
         mParamKeyValues.add(key, binary);
-        return this;
+        return (Child) this;
     }
 
     @Override
-    public BasicRequest set(String key, Binary binary) {
+    public Child set(String key, Binary binary) {
         validateMethodForBody("The Binary param");
         mParamKeyValues.set(key, binary);
-        return this;
+        return (Child) this;
     }
 
     @Override
-    public BasicRequest add(String key, File file) {
+    public Child add(String key, File file) {
         validateMethodForBody("The File param");
         add(key, new FileBinary(file));
-        return this;
+        return (Child) this;
     }
 
     @Override
-    public BasicRequest set(String key, File file) {
+    public Child set(String key, File file) {
         validateMethodForBody("The File param");
         set(key, new FileBinary(file));
-        return this;
+        return (Child) this;
     }
 
     @Override
-    public BasicRequest add(String key, List<Binary> binaries) {
+    public Child add(String key, List<Binary> binaries) {
         validateMethodForBody("The List<Binary> param");
         if (binaries != null) {
             for (Binary binary : binaries)
                 mParamKeyValues.add(key, binary);
         }
-        return this;
+        return (Child) this;
     }
 
     @Override
-    public BasicRequest set(String key, List<Binary> binaries) {
+    public Child set(String key, List<Binary> binaries) {
         validateMethodForBody("The List<Binary> param");
         mParamKeyValues.remove(key);
         add(key, binaries);
-        return this;
+        return (Child) this;
     }
 
     @Override
-    public BasicRequest add(Map<String, String> params) {
+    public Child add(Map<String, String> params) {
         if (params != null) {
             for (Map.Entry<String, String> stringEntry : params.entrySet())
                 add(stringEntry.getKey(), stringEntry.getValue());
         }
-        return this;
+        return (Child) this;
     }
 
     @Override
-    public BasicRequest set(Map<String, String> params) {
+    public Child set(Map<String, String> params) {
         if (params != null) {
             for (Map.Entry<String, String> stringEntry : params.entrySet())
                 set(stringEntry.getKey(), stringEntry.getValue());
         }
-        return this;
+        return (Child) this;
     }
 
     @Override
-    public BasicRequest remove(String key) {
+    public Child remove(String key) {
         mParamKeyValues.remove(key);
-        return this;
+        return (Child) this;
     }
 
     @Override
-    public BasicRequest removeAll() {
+    public Child removeAll() {
         mParamKeyValues.clear();
-        return this;
+        return (Child) this;
     }
 
     @Override
@@ -573,7 +573,7 @@ public class BasicRequest implements IBasicRequest<BasicRequest> {
     }
 
     @Override
-    public BasicRequest setDefineRequestBody(InputStream requestBody, String contentType) {
+    public Child setDefineRequestBody(InputStream requestBody, String contentType) {
         validateMethodForBody("Request body");
         validateParamForBody(requestBody, contentType);
         if (requestBody instanceof ByteArrayInputStream || requestBody instanceof FileInputStream) {
@@ -583,11 +583,11 @@ public class BasicRequest implements IBasicRequest<BasicRequest> {
             throw new IllegalArgumentException("Can only accept ByteArrayInputStream and FileInputStream type of " +
                     "stream");
         }
-        return this;
+        return (Child) this;
     }
 
     @Override
-    public BasicRequest setDefineRequestBody(String requestBody, String contentType) {
+    public Child setDefineRequestBody(String requestBody, String contentType) {
         validateMethodForBody("Request body");
         validateParamForBody(requestBody, contentType);
         try {
@@ -597,25 +597,25 @@ public class BasicRequest implements IBasicRequest<BasicRequest> {
             mRequestBody = IOUtils.toInputStream(requestBody);
             mHeaders.set(Headers.HEAD_KEY_CONTENT_TYPE, contentType);
         }
-        return this;
+        return (Child) this;
     }
 
     @Override
-    public BasicRequest setDefineRequestBodyForJson(String jsonBody) {
+    public Child setDefineRequestBodyForJson(String jsonBody) {
         setDefineRequestBody(jsonBody, Headers.HEAD_VALUE_ACCEPT_APPLICATION_JSON);
-        return this;
+        return (Child) this;
     }
 
     @Override
-    public BasicRequest setDefineRequestBodyForJson(JSONObject jsonBody) {
+    public Child setDefineRequestBodyForJson(JSONObject jsonBody) {
         setDefineRequestBody(jsonBody.toString(), Headers.HEAD_VALUE_ACCEPT_APPLICATION_JSON);
-        return this;
+        return (Child) this;
     }
 
     @Override
-    public BasicRequest setDefineRequestBodyForXML(String xmlBody) {
+    public Child setDefineRequestBodyForXML(String xmlBody) {
         setDefineRequestBody(xmlBody, Headers.HEAD_VALUE_ACCEPT_APPLICATION_XML);
-        return this;
+        return (Child) this;
     }
 
     /**
@@ -768,9 +768,9 @@ public class BasicRequest implements IBasicRequest<BasicRequest> {
     }
 
     @Override
-    public BasicRequest setRedirectHandler(RedirectHandler redirectHandler) {
+    public Child setRedirectHandler(RedirectHandler redirectHandler) {
         mRedirectHandler = redirectHandler;
-        return this;
+        return (Child) this;
     }
 
     @Override
@@ -779,9 +779,9 @@ public class BasicRequest implements IBasicRequest<BasicRequest> {
     }
 
     @Override
-    public BasicRequest setTag(Object tag) {
+    public Child setTag(Object tag) {
         this.mTag = tag;
-        return this;
+        return (Child) this;
     }
 
     @Override
@@ -833,9 +833,9 @@ public class BasicRequest implements IBasicRequest<BasicRequest> {
     }
 
     @Override
-    public BasicRequest setCancelSign(Object sign) {
+    public Child setCancelSign(Object sign) {
         this.mCancelSign = sign;
-        return this;
+        return (Child) this;
     }
 
     @Override

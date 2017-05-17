@@ -22,11 +22,11 @@ import android.os.Looper;
  * <p>Poster.</p>
  * Created by Yan Zhenjie on 2016/6/7.
  */
-public final class HandlerDelivery implements Delivery {
+public final class HandlerDelivery {
 
-    private static Delivery instance;
+    private static HandlerDelivery instance;
 
-    public static Delivery getInstance() {
+    public static HandlerDelivery getInstance() {
         if (instance == null)
             synchronized (HandlerDelivery.class) {
                 if (instance == null)
@@ -35,7 +35,7 @@ public final class HandlerDelivery implements Delivery {
         return instance;
     }
 
-    public static Delivery newInstance() {
+    public static HandlerDelivery newInstance() {
         return new HandlerDelivery(new Handler(Looper.getMainLooper()));
     }
 
@@ -45,28 +45,11 @@ public final class HandlerDelivery implements Delivery {
         this.mHandler = handler;
     }
 
-    @Override
     public boolean post(Runnable r) {
         return mHandler.post(r);
     }
 
-    @Override
     public boolean postDelayed(Runnable r, long delayMillis) {
         return mHandler.postDelayed(r, delayMillis);
-    }
-
-    @Override
-    public boolean postAtFrontOfQueue(Runnable r) {
-        return mHandler.postAtFrontOfQueue(r);
-    }
-
-    @Override
-    public boolean postAtTime(Runnable r, long uptimeMillis) {
-        return mHandler.postAtTime(r, uptimeMillis);
-    }
-
-    @Override
-    public boolean postAtTime(Runnable r, Object token, long uptimeMillis) {
-        return mHandler.postAtTime(r, token, uptimeMillis);
     }
 }

@@ -17,6 +17,7 @@ package com.yanzhenjie.nohttp.rest;
 
 import com.yanzhenjie.nohttp.BasicRequest;
 import com.yanzhenjie.nohttp.Headers;
+import com.yanzhenjie.nohttp.IBasicRequest;
 import com.yanzhenjie.nohttp.RequestMethod;
 
 /**
@@ -25,7 +26,9 @@ import com.yanzhenjie.nohttp.RequestMethod;
  * </p>
  * Created by Yan Zhenjie on 2016/8/20.
  */
-public abstract class ProtocolRequest<Result> extends BasicRequest implements IProtocolRequest<Result, BasicRequest> {
+public abstract class ProtocolRequest<Result, Child extends ProtocolRequest>
+        extends BasicRequest<Child>
+        implements IProtocolRequest<Result, Child> {
 
     /**
      * Cache key.

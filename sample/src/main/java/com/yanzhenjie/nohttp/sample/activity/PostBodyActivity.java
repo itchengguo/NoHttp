@@ -20,15 +20,15 @@ import android.text.TextUtils;
 import android.view.View;
 import android.widget.EditText;
 
-import com.yanzhenjie.nohttp.sample.R;
-import com.yanzhenjie.nohttp.sample.nohttp.HttpListener;
-import com.yanzhenjie.nohttp.sample.util.Constants;
-import com.yanzhenjie.nohttp.sample.util.Snackbar;
 import com.yanzhenjie.nohttp.Logger;
 import com.yanzhenjie.nohttp.NoHttp;
 import com.yanzhenjie.nohttp.RequestMethod;
 import com.yanzhenjie.nohttp.rest.Request;
 import com.yanzhenjie.nohttp.rest.Response;
+import com.yanzhenjie.nohttp.sample.R;
+import com.yanzhenjie.nohttp.sample.nohttp.HttpListener;
+import com.yanzhenjie.nohttp.sample.util.Constants;
+import com.yanzhenjie.nohttp.sample.util.Snackbar;
 import com.yanzhenjie.nohttp.tools.IOUtils;
 
 import java.io.IOException;
@@ -81,9 +81,9 @@ public class PostBodyActivity extends BaseActivity {
          * 这里要注意的是：
          * 1. 请求方法一定是POST、PUT等可以直接写流出去的方法。
          */
-        Request<String> request = NoHttp.createStringRequest(Constants.URL_NOHTTP_POSTBODY, RequestMethod.POST);
-        request.add("name", "yanzhenjie");
-        request.add("pwd", 123);
+        Request<String> request = NoHttp.createStringRequest(Constants.URL_NOHTTP_POSTBODY, RequestMethod.POST)
+                .add("name", "yanzhenjie")
+                .add("pwd", 123);
 
         /**
          * 下面就是怎么setBody，几种方法，根据自己的需要选择：

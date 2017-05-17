@@ -43,17 +43,17 @@ public class Application extends android.app.Application {
 
         CoreConfig.initialize(
                 CoreConfig.newBuilder(this)
-                        .setCookieStore(
+                        .cookieStore(
                                 DBCookieStore.newBuilder(_instance)
                                         .build()
                         )
-                        .setCacheStore(
+                        .cacheStore(
                                 DBCacheStore.newBuilder(_instance)
                                         .build()
                         )
-                        .setConnectTimeout(20 * 1000)
-                        .setReadTimeout(20 * 1000)
-                        .setNetworkExecutor(new OkHttpNetworkExecutor())
+                        .connectTimeout(20 * 1000)
+                        .readTimeout(20 * 1000)
+                        .networkExecutor(new OkHttpNetworkExecutor())
                         .build()
         );
 

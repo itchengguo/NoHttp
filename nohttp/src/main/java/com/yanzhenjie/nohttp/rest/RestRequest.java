@@ -28,7 +28,9 @@ import com.yanzhenjie.nohttp.RequestMethod;
  * @param <Result> a generics, regulated the analytic results of the Request.It should be with the
  *                 {@link Response}, {@link OnResponseListener}.
  */
-public abstract class RestRequest<Result> extends ProtocolRequest<Result> implements Request<Result> {
+public abstract class RestRequest<Result, Child extends RestRequest>
+        extends ProtocolRequest<Result, Child>
+        implements Request<Result> {
 
     private int sequence;
     private Priority priority;
