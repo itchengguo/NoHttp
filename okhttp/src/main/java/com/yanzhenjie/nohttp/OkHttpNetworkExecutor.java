@@ -15,6 +15,9 @@
  */
 package com.yanzhenjie.nohttp;
 
+import com.yanzhenjie.nohttp.network.Network;
+import com.yanzhenjie.nohttp.network.NetworkExecutor;
+
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.List;

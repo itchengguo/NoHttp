@@ -28,7 +28,7 @@ import com.yanzhenjie.nohttp.sample.util.Constants;
 import com.yanzhenjie.nohttp.sample.util.OnItemClickListener;
 import com.yanzhenjie.nohttp.NoHttp;
 import com.yanzhenjie.nohttp.error.NotFoundCacheError;
-import com.yanzhenjie.nohttp.rest.CacheMode;
+import com.yanzhenjie.nohttp.cache.CacheMode;
 import com.yanzhenjie.nohttp.rest.Request;
 import com.yanzhenjie.nohttp.rest.Response;
 

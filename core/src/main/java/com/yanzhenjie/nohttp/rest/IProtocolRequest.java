@@ -17,6 +17,7 @@ package com.yanzhenjie.nohttp.rest;
 
 import com.yanzhenjie.nohttp.Headers;
 import com.yanzhenjie.nohttp.IBasicRequest;
+import com.yanzhenjie.nohttp.cache.CacheMode;
 
 /**
  * <p>For the Request to encapsulate some Http protocol related properties.</p>
@@ -24,15 +25,7 @@ import com.yanzhenjie.nohttp.IBasicRequest;
  *
  * @param <Result> result.
  */
-public interface IProtocolRequest<Result, Child extends IBasicRequest> extends IBasicRequest<Child> {
-
-    /**
-     * Set the request cache primary key, it should be globally unique.
-     *
-     * @param key unique key.
-     * @return {@link IProtocolRequest}.
-     */
-    IProtocolRequest setCacheKey(String key);
+public interface IProtocolRequest<Result, Child extends IBasicRequest > extends IClientProtocol<>, IBasicRequest<Child> {
 
     /**
      * Get key of cache data.
@@ -40,14 +33,6 @@ public interface IProtocolRequest<Result, Child extends IBasicRequest> extends I
      * @return cache key.
      */
     String getCacheKey();
-
-    /**
-     * Set the cache mode.
-     *
-     * @param cacheMode The value from {@link CacheMode}.
-     * @return {@link IProtocolRequest}.
-     */
-    IProtocolRequest setCacheMode(CacheMode cacheMode);
 
     /**
      * He got the request cache mode.

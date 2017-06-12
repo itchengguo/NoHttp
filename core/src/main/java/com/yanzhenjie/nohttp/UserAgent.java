@@ -18,7 +18,6 @@ package com.yanzhenjie.nohttp;
 import android.os.Build;
 import android.text.TextUtils;
 
-import java.lang.reflect.Field;
 import java.util.Locale;
 
 /**
@@ -49,20 +48,8 @@ public class UserAgent {
      * @return UA.
      */
     public static String newInstance() {
-        String webUserAgent = null;
-        try {
-            Class<?> sysResCls = Class.forName("com.android.internal.R$string");
-            Field webUserAgentField = sysResCls.getDeclaredField("web_user_agent");
-            Integer resId = (Integer) webUserAgentField.get(null);
-            webUserAgent = CoreConfig.getContext().getString(resId);
-        } catch (Exception e) {
-            // We have nothing to do
-        }
-        if (TextUtils.isEmpty(webUserAgent)) {
-            webUserAgent = "Mozilla/5.0 (Linux; U; Android %s) AppleWebKit/533.1 (KHTML, like Gecko) Version/5.0 " +
-                    "%sSafari/533.1";
-        }
-
+        String webUserAgent =
+                "Mozilla/5.0 (Linux; U; Android %s) AppleWebKit/533.1 (KHTML, like Gecko) Version/5.0 %sSafari/533.1";
         Locale locale = Locale.getDefault();
         StringBuffer buffer = new StringBuffer();
         // Add version

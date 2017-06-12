@@ -13,7 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.yanzhenjie.nohttp;
+package com.yanzhenjie.nohttp.network;
+
+import com.yanzhenjie.nohttp.IBasicRequest;
 
 /**
  * Created by Yan Zhenjie on 2016/10/15.

@@ -133,7 +133,7 @@ public abstract class BasicBinary implements Binary, Startable, Finishable {
             mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension);
         }
         if (TextUtils.isEmpty(mimeType))
-            mimeType = Headers.HEAD_VALUE_ACCEPT_APPLICATION_OCTET_STREAM;
+            mimeType = Headers.HEAD_VALUE_CONTENT_TYPE_OCTET_STREAM;
         return mimeType;
     }
 

@@ -21,11 +21,12 @@ import com.yanzhenjie.nohttp.Connection;
 import com.yanzhenjie.nohttp.Headers;
 import com.yanzhenjie.nohttp.HttpConnection;
 import com.yanzhenjie.nohttp.IBasicRequest;
-import com.yanzhenjie.nohttp.NetworkExecutor;
 import com.yanzhenjie.nohttp.cache.CacheEntity;
+import com.yanzhenjie.nohttp.cache.CacheMode;
 import com.yanzhenjie.nohttp.error.NotFoundCacheError;
+import com.yanzhenjie.nohttp.network.NetworkExecutor;
 import com.yanzhenjie.nohttp.tools.CacheStore;
-import com.yanzhenjie.nohttp.tools.HeaderUtil;
+import com.yanzhenjie.nohttp.tools.HeaderUtils;
 import com.yanzhenjie.nohttp.tools.IOUtils;
 
 import java.io.IOException;
@@ -148,7 +149,7 @@ public class RestProtocol {
 
             long lastModified = headers.getLastModified();
             if (lastModified > 0)
-                request.headers().set(Headers.HEAD_KEY_IF_MODIFIED_SINCE, HeaderUtil.formatMillisToGMT(lastModified));
+                request.headers().set(Headers.HEAD_KEY_IF_MODIFIED_SINCE, HeaderUtils.formatMillisToGMT(lastModified));
         }
     }
 
@@ -207,7 +208,7 @@ public class RestProtocol {
                         }
                         case NONE_CACHE_REQUEST_NETWORK:// CacheStore none request network.
                         case REQUEST_NETWORK_FAILED_READ_CACHE: {// Request network failed read cache.
-                            long localExpire = HeaderUtil.getLocalExpires(result.headers);
+                            long localExpire = HeaderUtils.getLocalExpires(result.headers);
                             localCache = new CacheEntity();
                             localCache.setResponseHeaders(result.headers);
                             localCache.setData(result.body);
@@ -216,7 +217,7 @@ public class RestProtocol {
                             break;
                         }
                         case DEFAULT: {// Default, Comply with the RFC2616.
-                            long localExpire = HeaderUtil.getLocalExpires(result.headers);
+                            long localExpire = HeaderUtils.getLocalExpires(result.headers);
                             long lastModify = result.headers.getLastModified();
                             if (localExpire <= 0 && lastModify <= 0) return;
                             localCache = new CacheEntity();
@@ -229,9 +230,9 @@ public class RestProtocol {
                     }
 
                 } else if (!result.fromCache) {
-                    long localExpire = HeaderUtil.getLocalExpires(result.headers);
+                    long localExpire = HeaderUtils.getLocalExpires(result.headers);
                     localCache.setLocalExpire(localExpire);
-                    localCache.getResponseHeaders().setAll(result.headers);
+                    localCache.setResponseHeaders(result.headers);
                     localCache.setData(result.body);
                     mCacheStore.replace(cacheKey, localCache);
                 }

@@ -22,8 +22,10 @@ import com.yanzhenjie.nohttp.error.NetworkError;
 import com.yanzhenjie.nohttp.error.TimeoutError;
 import com.yanzhenjie.nohttp.error.URLError;
 import com.yanzhenjie.nohttp.error.UnKnownHostError;
+import com.yanzhenjie.nohttp.network.Network;
+import com.yanzhenjie.nohttp.network.NetworkExecutor;
 import com.yanzhenjie.nohttp.tools.IOUtils;
-import com.yanzhenjie.nohttp.tools.NetUtil;
+import com.yanzhenjie.nohttp.tools.NetUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -57,14 +59,14 @@ public class HttpConnection {
     public Connection getConnection(IBasicRequest request) {
         Logger.d("--------------Request start--------------");
 
-        Headers responseHeaders = new HttpHeaders();
+        Headers responseHeaders = new Headers();
         InputStream inputStream = null;
         Exception exception = null;
 
         Network network = null;
         String url = request.url();
         try {
-            if (!NetUtil.isNetworkAvailable(CoreConfig.getContext()))
+            if (!NetUtils.isNetworkAvailable(CoreConfig.getContext()))
                 throw new NetworkError("The network is not available, please check the network. The requested url is: " + url);
 
             // MalformedURLException, IOException, ProtocolException, UnknownHostException, SocketTimeoutException
@@ -210,7 +212,8 @@ public class HttpConnection {
                 }
             }
 
-            redirectRequest = new BasicRequest(location, oldRequest.getRequestMethod()) {};
+            redirectRequest = new BasicRequest(location, oldRequest.getRequestMethod()) {
+            };
             redirectRequest.setRedirectHandler(oldRequest.getRedirectHandler());
             redirectRequest.setSSLSocketFactory(oldRequest.getSSLSocketFactory());
             redirectRequest.setHostnameVerifier(oldRequest.getHostnameVerifier());
@@ -237,7 +240,7 @@ public class HttpConnection {
         }
 
         // handle headers
-        Headers headers = new HttpHeaders();
+        Headers headers = new Headers();
         headers.set(responseHeaders);
         headers.set(Headers.HEAD_KEY_RESPONSE_CODE, Integer.toString(responseCode));
         // print

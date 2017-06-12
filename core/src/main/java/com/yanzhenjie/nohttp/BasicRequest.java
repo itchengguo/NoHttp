@@ -17,8 +17,11 @@ package com.yanzhenjie.nohttp;
 
 import android.text.TextUtils;
 
+import com.yanzhenjie.nohttp.able.Cancelable;
+import com.yanzhenjie.nohttp.able.Startable;
+import com.yanzhenjie.nohttp.body.BodyWriter;
 import com.yanzhenjie.nohttp.tools.CounterOutputStream;
-import com.yanzhenjie.nohttp.tools.HeaderUtil;
+import com.yanzhenjie.nohttp.tools.HeaderUtils;
 import com.yanzhenjie.nohttp.tools.IOUtils;
 import com.yanzhenjie.nohttp.tools.LinkedMultiValueMap;
 import com.yanzhenjie.nohttp.tools.MultiValueMap;
@@ -44,29 +47,24 @@ import javax.net.ssl.SSLSocketFactory;
 
 /**
  * <p>
- * Implement all the methods of the base class {@link IBasicRequest}.
+ * Implement the http protocol.
  * </p>
  * Created by Yan Zhenjie on Nov 4, 2015.
  */
-@SuppressWarnings("unchecked")
-public abstract class BasicRequest<Child extends IBasicRequest> implements IBasicRequest<Child> {
-
-    private final String boundary = createBoundary();
-    private final String startBoundary = "--" + boundary;
-    private final String endBoundary = startBoundary + "--";
+public abstract class BasicRequest<Child extends BasicRequest> implements IClientRequest<Child>, Startable, Cancelable {
 
     /**
      * Target address.
      */
-    private String url;
+    private String mBaseUrl;
     /**
      * Request method.
      */
     private RequestMethod mRequestMethod;
     /**
-     * MultipartFormEnable.
+     * RequestBody wrapper.
      */
-    private boolean isMultipartFormEnable = false;
+    private BodyWriter mBodyWriter;
     /**
      * Proxy server.
      */
@@ -82,15 +80,15 @@ public abstract class BasicRequest<Child extends IBasicRequest> implements IBasi
     /**
      * Connect timeout of request.
      */
-    private int mConnectTimeout = CoreConfig.getInstance().getConnectTimeout();
+    private int mConnectTimeout = NoHttp.getCoreConfig().getConnectTimeout();
     /**
      * Read data timeout.
      */
-    private int mReadTimeout = CoreConfig.getInstance().getReadTimeout();
+    private int mReadTimeout = NoHttp.getCoreConfig().getReadTimeout();
     /**
      * Request heads.
      */
-    private Headers mHeaders;
+    private Headers mHeaders = new Headers();
     /**
      * After the failure of retries.
      */
@@ -98,15 +96,11 @@ public abstract class BasicRequest<Child extends IBasicRequest> implements IBasi
     /**
      * The params encoding.
      */
-    private String mParamEncoding;
+    private String mParamEncoding = "UTF-8";
     /**
      * Param collection.
      */
     private MultiValueMap<String, Object> mParamKeyValues;
-    /**
-     * RequestBody.
-     */
-    private InputStream mRequestBody;
     /**
      * Redirect handler.
      */
@@ -116,17 +110,9 @@ public abstract class BasicRequest<Child extends IBasicRequest> implements IBasi
      */
     private boolean isStart = false;
     /**
-     * The request is completed.
-     */
-    private boolean isFinished = false;
-    /**
      * Has been canceled.
      */
     private boolean isCanceled = false;
-    /**
-     * Cancel sign.
-     */
-    private Object mCancelSign;
     /**
      * Tag of request.
      */
@@ -148,21 +134,25 @@ public abstract class BasicRequest<Child extends IBasicRequest> implements IBasi
      * @param requestMethod request method, like {@link RequestMethod#GET}, {@link RequestMethod#POST}.
      */
     public BasicRequest(String url, RequestMethod requestMethod) {
-        this.url = url;
+        this.mBaseUrl = url;
         mRequestMethod = requestMethod;
 
-        mHeaders = new HttpHeaders();
+        mHeaders = new Headers();
         mHeaders.set(Headers.HEAD_KEY_ACCEPT, Headers.HEAD_VALUE_ACCEPT_ALL);
         mHeaders.set(Headers.HEAD_KEY_ACCEPT_ENCODING, Headers.HEAD_VALUE_ACCEPT_ENCODING_GZIP_DEFLATE);
-        mHeaders.set(Headers.HEAD_KEY_ACCEPT_LANGUAGE, HeaderUtil.systemAcceptLanguage());
+        mHeaders.set(Headers.HEAD_KEY_ACCEPT_LANGUAGE, HeaderUtils.systemAcceptLanguage());
         mHeaders.set(Headers.HEAD_KEY_USER_AGENT, UserAgent.instance());
 
         mParamKeyValues = new LinkedMultiValueMap<>();
     }
 
-    @Override
+    /**
+     * Return mBaseUrl of request.
+     *
+     * @return Url.
+     */
     public String url() {
-        StringBuilder urlBuilder = new StringBuilder(url);
+        StringBuilder urlBuilder = new StringBuilder(mBaseUrl);
         // first body.
         if (hasDefineRequestBody()) {
             buildUrl(urlBuilder);
@@ -178,33 +168,36 @@ public abstract class BasicRequest<Child extends IBasicRequest> implements IBasi
     }
 
     /**
-     * Build complete url.
+     * Build complete mBaseUrl.
      *
-     * @param urlBuilder url StringBuilder.
+     * @param urlBuilder mBaseUrl StringBuilder.
      */
     private void buildUrl(StringBuilder urlBuilder) {
         StringBuilder paramBuilder = buildCommonParams(getParamKeyValues(), getParamsEncoding());
         if (paramBuilder.length() <= 0) return;
-        if (url.contains("?") && url.contains("=")) urlBuilder.append("&");
-        else if (!url.endsWith("?")) urlBuilder.append("?");
+        if (mBaseUrl.contains("?") && mBaseUrl.contains("=")) urlBuilder.append("&");
+        else if (!mBaseUrl.endsWith("?")) urlBuilder.append("?");
         urlBuilder.append(paramBuilder);
     }
 
-    @Override
+    /**
+     * return method of request.
+     *
+     * @return {@link RequestMethod}.
+     */
     public RequestMethod getRequestMethod() {
         return mRequestMethod;
     }
 
-    @Override
-    public Child setMultipartFormEnable(boolean enable) {
-        validateMethodForBody("Form body");
-        isMultipartFormEnable = enable;
-        return (Child) this;
-    }
-
-    @Override
-    public boolean isMultipartFormEnable() {
-        return isMultipartFormEnable || hasBinary();
+    /**
+     * Is MultipartFormEnable ?
+     * <p>MultipartFormEnable is request method is the premise of the POST/PUT/PATCH/DELETE, but the Android system
+     * under API level 19 does not support the DELETE.</p>
+     *
+     * @return true enable, other wise false.
+     */
+    public boolean isFormDataEnable() {
+        return hasBinary();
     }
 
     @Override
@@ -213,7 +206,11 @@ public abstract class BasicRequest<Child extends IBasicRequest> implements IBasi
         return (Child) this;
     }
 
-    @Override
+    /**
+     * Get proxy server.
+     *
+     * @return Can use {@code Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress("64.233.162.83", 80));}.
+     */
     public Proxy getProxy() {
         return mProxy;
     }
@@ -224,7 +221,11 @@ public abstract class BasicRequest<Child extends IBasicRequest> implements IBasi
         return (Child) this;
     }
 
-    @Override
+    /**
+     * Get SSLSocketFactory.
+     *
+     * @return {@link SSLSocketFactory}.
+     */
     public SSLSocketFactory getSSLSocketFactory() {
         return mSSLSocketFactory;
     }
@@ -235,7 +236,11 @@ public abstract class BasicRequest<Child extends IBasicRequest> implements IBasi
         return (Child) this;
     }
 
-    @Override
+    /**
+     * Get the HostnameVerifier.
+     *
+     * @return {@link HostnameVerifier}.
+     */
     public HostnameVerifier getHostnameVerifier() {
         return mHostnameVerifier;
     }
@@ -246,7 +251,11 @@ public abstract class BasicRequest<Child extends IBasicRequest> implements IBasi
         return (Child) this;
     }
 
-    @Override
+    /**
+     * Get the connection timeout time, Unit is a millisecond.
+     *
+     * @return Connection timeout.
+     */
     public int getConnectTimeout() {
         return mConnectTimeout;
     }
@@ -257,7 +266,11 @@ public abstract class BasicRequest<Child extends IBasicRequest> implements IBasi
         return (Child) this;
     }
 
-    @Override
+    /**
+     * Get the read timeout time, Unit is a millisecond.
+     *
+     * @return Read timeout.
+     */
     public int getReadTimeout() {
         return mReadTimeout;
     }
@@ -293,7 +306,11 @@ public abstract class BasicRequest<Child extends IBasicRequest> implements IBasi
         return (Child) this;
     }
 
-    @Override
+    /**
+     * Get all Heads.
+     *
+     * @return {@code Headers}.
+     */
     public Headers headers() {
         return mHeaders;
     }
@@ -310,7 +327,11 @@ public abstract class BasicRequest<Child extends IBasicRequest> implements IBasi
         return (Child) this;
     }
 
-    @Override
+    /**
+     * The contentLength of the request body.
+     *
+     * @return Such as: {@code 2048}.
+     */
     public long getContentLength() {
         CounterOutputStream outputStream = new CounterOutputStream();
         try {
@@ -327,15 +348,19 @@ public abstract class BasicRequest<Child extends IBasicRequest> implements IBasi
         return (Child) this;
     }
 
-    @Override
+    /**
+     * Get {@value Headers#HEAD_KEY_CONTENT_TYPE}.
+     *
+     * @return string, such as: {@value Headers#HEAD_VALUE_CONTENT_TYPE_JSON}.
+     */
     public String getContentType() {
         String contentType = mHeaders.getValue(Headers.HEAD_KEY_CONTENT_TYPE, 0);
         if (!TextUtils.isEmpty(contentType))
             return contentType;
-        if (getRequestMethod().allowRequestBody() && isMultipartFormEnable())
-            return Headers.HEAD_VALUE_ACCEPT_MULTIPART_FORM_DATA + "; boundary=" + boundary;
+        if (getRequestMethod().allowRequestBody() && isFormDataEnable())
+            return Headers.HEAD_VALUE_CONTENT_TYPE_FORM_DATA + "; boundary=" + boundary;
         else
-            return Headers.HEAD_VALUE_ACCEPT_APPLICATION_X_WWW_FORM_URLENCODED + "; charset=" + getParamsEncoding();
+            return Headers.HEAD_VALUE_CONTENT_TYPE_URL + "; charset=" + getParamsEncoding();
     }
 
     @Override
@@ -350,7 +375,11 @@ public abstract class BasicRequest<Child extends IBasicRequest> implements IBasi
         return (Child) this;
     }
 
-    @Override
+    /**
+     * To getList the failure after retries.
+     *
+     * @return The default value is 0.
+     */
     public int getRetryCount() {
         return mRetryCount;
     }
@@ -361,10 +390,12 @@ public abstract class BasicRequest<Child extends IBasicRequest> implements IBasi
         return (Child) this;
     }
 
-    @Override
+    /**
+     * Get the params encoding.
+     *
+     * @return such as {@code "utf-8, gbk, bg2312"}.
+     */
     public String getParamsEncoding() {
-        if (TextUtils.isEmpty(mParamEncoding))
-            mParamEncoding = "utf-8";
         return mParamEncoding;
     }
 
@@ -410,7 +441,7 @@ public abstract class BasicRequest<Child extends IBasicRequest> implements IBasi
 
     @Override
     public Child path(String path) {
-        url += url.endsWith("/") ? path : ("/" + path);
+        mBaseUrl += mBaseUrl.endsWith("/") ? path : ("/" + path);
         return (Child) this;
     }
 
@@ -467,17 +498,6 @@ public abstract class BasicRequest<Child extends IBasicRequest> implements IBasi
         value = value == null ? "" : value;
         mParamKeyValues.set(key, value);
         return (Child) this;
-    }
-
-    /**
-     * Validate method for request body.
-     *
-     * @param methodObject message.
-     */
-    private void validateMethodForBody(String methodObject) {
-        if (!getRequestMethod().allowRequestBody())
-            throw new IllegalArgumentException(methodObject + " only supports these request methods: " +
-                    "POST/PUT/PATCH/DELETE.");
     }
 
     @Override
@@ -556,7 +576,11 @@ public abstract class BasicRequest<Child extends IBasicRequest> implements IBasi
         return (Child) this;
     }
 
-    @Override
+    /**
+     * Get the parameters of key-value pairs.
+     *
+     * @return Not empty Map.
+     */
     public MultiValueMap<String, Object> getParamKeyValues() {
         return mParamKeyValues;
     }
@@ -602,19 +626,19 @@ public abstract class BasicRequest<Child extends IBasicRequest> implements IBasi
 
     @Override
     public Child setDefineRequestBodyForJson(String jsonBody) {
-        setDefineRequestBody(jsonBody, Headers.HEAD_VALUE_ACCEPT_APPLICATION_JSON);
+        setDefineRequestBody(jsonBody, Headers.HEAD_VALUE_CONTENT_TYPE_JSON);
         return (Child) this;
     }
 
     @Override
     public Child setDefineRequestBodyForJson(JSONObject jsonBody) {
-        setDefineRequestBody(jsonBody.toString(), Headers.HEAD_VALUE_ACCEPT_APPLICATION_JSON);
+        setDefineRequestBody(jsonBody.toString(), Headers.HEAD_VALUE_CONTENT_TYPE_JSON);
         return (Child) this;
     }
 
     @Override
     public Child setDefineRequestBodyForXML(String xmlBody) {
-        setDefineRequestBody(xmlBody, Headers.HEAD_VALUE_ACCEPT_APPLICATION_XML);
+        setDefineRequestBody(xmlBody, Headers.HEAD_VALUE_CONTENT_TYPE_XML);
         return (Child) this;
     }
 
@@ -653,118 +677,20 @@ public abstract class BasicRequest<Child extends IBasicRequest> implements IBasi
         return mRequestBody;
     }
 
-    @Override
+    /**
+     * Call before carry out the request, you can do some preparation work.
+     */
     public void onPreExecute() {
         // Do some time-consuming operation.
     }
 
-    @Override
+    /**
+     * Send request body data.
+     *
+     * @param writer {@link OutputStream}.
+     * @throws IOException add error.
+     */
     public void onWriteRequestBody(OutputStream writer) throws IOException {
-        if (hasDefineRequestBody()) {
-            writeRequestBody(writer);
-        } else if (isMultipartFormEnable()) {
-            writeFormStreamData(writer);
-        } else {
-            writeParamStreamData(writer);
-        }
-    }
-
-    /**
-     * Send request requestBody.
-     *
-     * @param writer {@link OutputStream}.
-     * @throws IOException write error.
-     */
-    protected void writeRequestBody(OutputStream writer) throws IOException {
-        if (mRequestBody != null) {
-            if (writer instanceof CounterOutputStream) {
-                writer.write(mRequestBody.available());
-            } else {
-                IOUtils.write(mRequestBody, writer);
-                IOUtils.closeQuietly(mRequestBody);
-                mRequestBody = null;
-            }
-        }
-    }
-
-    /**
-     * Send form data.
-     *
-     * @param writer {@link OutputStream}.
-     * @throws IOException write error.
-     */
-    protected void writeFormStreamData(OutputStream writer) throws IOException {
-        Set<String> keys = mParamKeyValues.keySet();
-        for (String key : keys) {
-            List<Object> values = mParamKeyValues.getValues(key);
-            for (Object value : values) {
-                if (!isCanceled()) {
-                    if (value != null && value instanceof String) {
-                        if (!(writer instanceof CounterOutputStream))
-                            Logger.i(key + "=" + value);
-                        writeFormString(writer, key, (String) value);
-                    } else if (value != null && value instanceof Binary) {
-                        if (!(writer instanceof CounterOutputStream))
-                            Logger.i(key + " is Binary");
-                        writeFormBinary(writer, key, (Binary) value);
-                    }
-                    writer.write("\r\n".getBytes());
-                }
-            }
-        }
-        writer.write((endBoundary).getBytes());
-    }
-
-    /**
-     * Send text data in a form.
-     *
-     * @param writer {@link OutputStream}
-     * @param key    equivalent to form the name of the input label, {@code "Content-Disposition: form-data; name=key"}.
-     * @param value  equivalent to form the value of the input label.
-     * @throws IOException Write the data may be abnormal.
-     */
-    private void writeFormString(OutputStream writer, String key, String value) throws IOException {
-        String stringFieldBuilder = startBoundary + "\r\n"
-                + "Content-Disposition: form-data; name=\"" + key + "\"\r\n"
-                + "Content-Type: text/plain; charset=" + getParamsEncoding() + "\r\n\r\n";
-
-        writer.write(stringFieldBuilder.getBytes(getParamsEncoding()));
-        writer.write(value.getBytes(getParamsEncoding()));
-    }
-
-    /**
-     * Send binary data in a form.
-     */
-    private void writeFormBinary(OutputStream writer, String key, Binary value) throws IOException {
-        if (!value.isCanceled()) {
-            String binaryFieldBuilder = startBoundary + "\r\n" +
-                    "Content-Disposition: form-data; name=\"" + key + "\"" + "; filename=\"" + value.getFileName() +
-                    "\"\r\n"
-                    + "Content-Type: " + value.getMimeType() + "\r\n"
-                    + "Content-Transfer-Encoding: binary\r\n\r\n";
-            writer.write(binaryFieldBuilder.getBytes());
-
-            if (writer instanceof CounterOutputStream) {
-                ((CounterOutputStream) writer).write(value.getLength());
-            } else {
-                value.onWriteBinary(writer);
-            }
-        }
-    }
-
-    /**
-     * Write params.
-     *
-     * @param writer {@link OutputStream}.
-     * @throws IOException IOException.
-     */
-    private void writeParamStreamData(OutputStream writer) throws IOException {
-        StringBuilder paramBuilder = buildCommonParams(mParamKeyValues, getParamsEncoding());
-        if (paramBuilder.length() > 0) {
-            String params = paramBuilder.toString();
-            Logger.i("Body: " + params);
-            IOUtils.write(params.getBytes(), writer);
-        }
     }
 
     @Override
@@ -773,7 +699,11 @@ public abstract class BasicRequest<Child extends IBasicRequest> implements IBasi
         return (Child) this;
     }
 
-    @Override
+    /**
+     * Get the redirect handler.
+     *
+     * @return {@link RedirectHandler}.
+     */
     public RedirectHandler getRedirectHandler() {
         return mRedirectHandler;
     }
@@ -784,7 +714,11 @@ public abstract class BasicRequest<Child extends IBasicRequest> implements IBasi
         return (Child) this;
     }
 
-    @Override
+    /**
+     * Should to return the tag of the object.
+     *
+     * @return {@link Object}.
+     */
     public Object getTag() {
         return this.mTag;
     }
@@ -800,48 +734,13 @@ public abstract class BasicRequest<Child extends IBasicRequest> implements IBasi
     }
 
     @Override
-    public void finish() {
-        this.isFinished = true;
-    }
-
-    @Override
-    public boolean isFinished() {
-        return isFinished;
-    }
-
-    @Override
     public void cancel() {
-        if (!isCanceled) {
-            isCanceled = true;
-            if (mRequestBody != null)
-                IOUtils.closeQuietly(mRequestBody);
-
-            // cancel file upload
-            Set<String> keys = mParamKeyValues.keySet();
-            for (String key : keys) {
-                List<Object> values = mParamKeyValues.getValues(key);
-                for (Object value : values)
-                    if (value != null && value instanceof Binary)
-                        ((Binary) value).cancel();
-            }
-        }
+        this.isCanceled = true;
     }
 
     @Override
     public boolean isCanceled() {
         return isCanceled;
-    }
-
-    @Override
-    public Child setCancelSign(Object sign) {
-        this.mCancelSign = sign;
-        return (Child) this;
-    }
-
-    @Override
-    public void cancelBySign(Object sign) {
-        if (mCancelSign == sign)
-            cancel();
     }
 
     ////////// static module /////////

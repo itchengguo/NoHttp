@@ -29,7 +29,7 @@ import java.util.TimeZone;
 /**
  * Created by Yan Zhenjie on 2016/6/21.
  */
-public class HeaderUtil {
+public class HeaderUtils {
 
     /**
      * Accept-Language.

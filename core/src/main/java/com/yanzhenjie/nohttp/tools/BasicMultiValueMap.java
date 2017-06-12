@@ -63,14 +63,6 @@ public class BasicMultiValueMap<K, V> implements MultiValueMap<K, V> {
     }
 
     @Override
-    public void set(Map<K, List<V>> map) {
-        clear();
-        for (Map.Entry<K, List<V>> entry : map.entrySet()) {
-            add(entry.getKey(), entry.getValue());
-        }
-    }
-
-    @Override
     public List<V> remove(K key) {
         return mSource.remove(key);
     }
@@ -83,16 +75,6 @@ public class BasicMultiValueMap<K, V> implements MultiValueMap<K, V> {
     @Override
     public Set<K> keySet() {
         return mSource.keySet();
-    }
-
-    @Override
-    public List<V> values() {
-        List<V> allValues = new ArrayList<>();
-        Set<K> keySet = keySet();
-        for (K key : keySet) {
-            allValues.addAll(getValues(key));
-        }
-        return allValues;
     }
 
     @Override
@@ -126,9 +108,5 @@ public class BasicMultiValueMap<K, V> implements MultiValueMap<K, V> {
     @Override
     public boolean containsKey(K key) {
         return mSource.containsKey(key);
-    }
-
-    public Map<K, List<V>> getSource() {
-        return mSource;
     }
 }

@@ -20,7 +20,7 @@ import java.io.OutputStream;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
- * <p> Measure the length of the flow.</p>
+ * <p> Measure the contentLength of the flow.</p>
  * Created by Yan Zhenjie on Dec 17, 2015.
  */
 public class CounterOutputStream extends OutputStream {
@@ -30,7 +30,7 @@ public class CounterOutputStream extends OutputStream {
     public CounterOutputStream() {
     }
 
-    public void write(long count) {
+    public void add(long count) {
         if (count > 0)
             length.addAndGet(count);
     }
@@ -41,7 +41,7 @@ public class CounterOutputStream extends OutputStream {
 
     @Override
     public void write(int oneByte) throws IOException {
-        length.addAndGet(oneByte);
+        length.addAndGet(1);
     }
 
     @Override

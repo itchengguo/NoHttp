@@ -37,7 +37,7 @@ import java.util.regex.Pattern;
  * </p>
  * Created by Yan Zhenjie on Jul 31, 2015.
  */
-public class NetUtil {
+public class NetUtils {
 
     public enum NetType {
         Any,
@@ -56,7 +56,7 @@ public class NetUtil {
 
     private static ConnectivityManager getConnectivityManager(Context context) {
         if (sConnectivityManager == null) {
-            synchronized (NetUtil.class) {
+            synchronized (NetUtils.class) {
                 if (sConnectivityManager == null) {
                     sConnectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
                 }

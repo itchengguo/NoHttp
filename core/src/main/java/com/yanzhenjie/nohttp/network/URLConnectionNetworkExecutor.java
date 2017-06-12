@@ -13,12 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.yanzhenjie.nohttp;
+package com.yanzhenjie.nohttp.network;
 
 import android.os.Build;
 
+import com.yanzhenjie.nohttp.Headers;
+import com.yanzhenjie.nohttp.IBasicRequest;
+import com.yanzhenjie.nohttp.Logger;
+import com.yanzhenjie.nohttp.RequestMethod;
 import com.yanzhenjie.nohttp.tools.AndroidVersion;
-import com.yanzhenjie.nohttp.tools.HeaderUtil;
+import com.yanzhenjie.nohttp.tools.HeaderUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -187,7 +191,7 @@ public class URLConnectionNetworkExecutor implements NetworkExecutor {
      */
     private static InputStream gzipInputStream(String contentEncoding, InputStream inputStream) throws
             IOException {
-        if (HeaderUtil.isGzipContent(contentEncoding)) {
+        if (HeaderUtils.isGzipContent(contentEncoding)) {
             inputStream = new GZIPInputStream(inputStream);
         }
         return inputStream;

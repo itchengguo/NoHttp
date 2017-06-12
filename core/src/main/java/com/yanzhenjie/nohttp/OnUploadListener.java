@@ -18,7 +18,7 @@ package com.yanzhenjie.nohttp;
 /**
  * Created by Yan Zhenjie on Jan 29, 2016.
  */
-public interface OnUploadListener {
+public interface OnUploadListener extends ProgressListener {
 
     /**
      * At the start of the upload is invoked.
@@ -36,14 +36,6 @@ public interface OnUploadListener {
      */
     void onCancel(int what);
 
-    /**
-     * Invoked when the upload progress changes.
-     *
-     * @param what     what of {@link FileBinary#setUploadListener(int, OnUploadListener)}.
-     * @param progress progress
-     * @see FileBinary#setUploadListener(int, OnUploadListener)
-     */
-    void onProgress(int what, int progress);
 
     /**
      * Upload is complete is invoked.

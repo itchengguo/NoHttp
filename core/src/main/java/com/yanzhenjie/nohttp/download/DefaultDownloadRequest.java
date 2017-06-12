@@ -18,8 +18,6 @@ package com.yanzhenjie.nohttp.download;
 import com.yanzhenjie.nohttp.BasicRequest;
 import com.yanzhenjie.nohttp.RequestMethod;
 
-import java.io.File;
-
 /**
  * <p>
  * Download the implementation class of the parameter request, and convert it to the object of the network download.
@@ -137,21 +135,5 @@ public class DefaultDownloadRequest extends BasicRequest implements IDownloadReq
     @Override
     public boolean isDeleteOld() {
         return this.isDeleteOld;
-    }
-
-    @Override
-    public int checkBeforeStatus() {
-        if (this.isRange) {
-            try {
-                File lastFile = new File(mFileDir, mFileName);
-                if (lastFile.exists() && !isDeleteOld)
-                    return STATUS_FINISH;
-                File tempFile = new File(mFileDir, mFileName + ".nohttp");
-                if (tempFile.exists())
-                    return STATUS_RESUME;
-            } catch (Exception e) {
-            }
-        }
-        return STATUS_RESTART;
     }
 }

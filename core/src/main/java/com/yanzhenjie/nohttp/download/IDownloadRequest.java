@@ -26,19 +26,6 @@ import com.yanzhenjie.nohttp.IBasicRequest;
 public interface IDownloadRequest extends IBasicRequest {
 
     /**
-     * Also didn't download to start download again.
-     */
-    int STATUS_RESTART = 0;
-    /**
-     * Part has been downloaded, continue to download last time.
-     */
-    int STATUS_RESUME = 1;
-    /**
-     * Has the download is complete, not to download operation.
-     */
-    int STATUS_FINISH = 2;
-
-    /**
      * Return the mFileDir.
      *
      * @return it won't be empty.
@@ -72,19 +59,5 @@ public interface IDownloadRequest extends IBasicRequest {
      * @return true: deleted, false: don't delete.
      */
     boolean isDeleteOld();
-
-    /**
-     * <p>
-     * Query before download status {@link #STATUS_RESTART} representative no download do to download again; Download
-     * {@link #STATUS_RESUME} represents a part of, to continue to download; {@link #STATUS_FINISH} representatives
-     * have finished downloading.
-     * </p>
-     *
-     * @return int value, compared with the {@value #STATUS_RESTART}, {@value #STATUS_RESUME}, {@value #STATUS_FINISH}.
-     * @see #STATUS_RESTART
-     * @see #STATUS_RESUME
-     * @see #STATUS_FINISH
-     */
-    int checkBeforeStatus();
 
 }

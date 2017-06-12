@@ -15,24 +15,22 @@
  */
 package com.yanzhenjie.nohttp;
 
-import com.yanzhenjie.nohttp.able.Cancelable;
-
 import java.io.OutputStream;
 
 /**
  * <p>File interface.
  * All the methods are called in Son thread.</p>
  * Created in Oct 12, 2015 4:44:07 PM.
- *
+ * <p>
  * Created by Yan Zhenjie on Oct 12, 2015.
  */
-public interface Binary extends Cancelable {
+public interface Binary {
 
     /**
      * Returns the size of the Binary, if size is 0, the Binary BasicSQLHelper will not be sent. The rest of the
      * {@link Binary} method will not be invoked.
      *
-     * @return Long length.
+     * @return Long contentLength.
      */
     long getLength();
 

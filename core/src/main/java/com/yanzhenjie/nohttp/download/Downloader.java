@@ -23,7 +23,8 @@ import com.yanzhenjie.nohttp.CoreConfig;
 import com.yanzhenjie.nohttp.Headers;
 import com.yanzhenjie.nohttp.HttpConnection;
 import com.yanzhenjie.nohttp.Logger;
-import com.yanzhenjie.nohttp.NetworkExecutor;
+import com.yanzhenjie.nohttp.NoHttp;
+import com.yanzhenjie.nohttp.network.NetworkExecutor;
 import com.yanzhenjie.nohttp.error.NetworkError;
 import com.yanzhenjie.nohttp.error.ServerError;
 import com.yanzhenjie.nohttp.error.StorageReadWriteError;
@@ -31,9 +32,9 @@ import com.yanzhenjie.nohttp.error.StorageSpaceNotEnoughError;
 import com.yanzhenjie.nohttp.error.TimeoutError;
 import com.yanzhenjie.nohttp.error.URLError;
 import com.yanzhenjie.nohttp.error.UnKnownHostError;
-import com.yanzhenjie.nohttp.tools.HeaderUtil;
+import com.yanzhenjie.nohttp.tools.HeaderUtils;
 import com.yanzhenjie.nohttp.tools.IOUtils;
-import com.yanzhenjie.nohttp.tools.NetUtil;
+import com.yanzhenjie.nohttp.tools.NetUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -68,7 +69,7 @@ public class Downloader {
     }
 
     private void validateDevice(String savePathDir) throws Exception {
-        if (!NetUtil.isNetworkAvailable(CoreConfig.getContext()))
+        if (!NetUtils.isNetworkAvailable(NoHttp.getContext()))
             throw new NetworkError("Please check whether the network is available or network permissions: "
                     + "ACCESS_WIFI_STATE, ACCESS_NETWORK_STATE.");
 
@@ -117,7 +118,7 @@ public class Downloader {
         if (request.autoNameByHead()) {
             String contentDisposition = responseHeaders.getContentDisposition();
             if (!TextUtils.isEmpty(contentDisposition)) {
-                fileName = HeaderUtil.parseHeadValue(contentDisposition, "filename", null);
+                fileName = HeaderUtils.parseHeadValue(contentDisposition, "filename", null);
                 if (!TextUtils.isEmpty(fileName)) {
                     try {
                         fileName = URLDecoder.decode(fileName, request.getParamsEncoding());
@@ -153,7 +154,7 @@ public class Downloader {
         String fileName = request.getFileName();
         try {
             if (TextUtils.isEmpty(savePathDir))
-                savePathDir = CoreConfig.getContext().getFilesDir().getAbsolutePath();
+                savePathDir = NoHttp.getContext().getFilesDir().getAbsolutePath();
 
             validateDevice(savePathDir);
 
@@ -328,7 +329,7 @@ public class Downloader {
             Logger.e(newException);
             downloadListener.onDownloadError(what, newException);
         } catch (Exception e) {// NetworkError | ServerError | StorageCantWriteError | StorageSpaceNotEnoughError
-            if (!NetUtil.isNetworkAvailable(CoreConfig.getContext()))
+            if (!NetUtils.isNetworkAvailable(NoHttp.getContext()))
                 e = new NetworkError("The network is not available.");
             Logger.e(e);
             downloadListener.onDownloadError(what, e);

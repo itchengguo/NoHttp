@@ -13,14 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.yanzhenjie.nohttp.rest;
+package com.yanzhenjie.nohttp.cache;
 
 /**
- * <p>
- * Core caching pattern, the default value is {@link CacheMode#DEFAULT}, other value may be
- * {@link CacheMode#REQUEST_NETWORK_FAILED_READ_CACHE}, {@link CacheMode#ONLY_READ_CACHE},
- * {@link CacheMode#ONLY_REQUEST_NETWORK}, {@link CacheMode#NONE_CACHE_REQUEST_NETWORK}.
- * </p>
+ * <p>Cache mode, the definition of a variety of cache operation logic.</p>
  * Created by Yan Zhenjie on 2016/3/20.
  */
 public enum CacheMode {

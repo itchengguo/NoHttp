@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Yan Zhenjie
+ * Copyright © Yan Zhenjie
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,23 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.yanzhenjie.nohttp.able;
+package com.yanzhenjie.nohttp.body;
+
+import java.io.IOException;
+import java.io.OutputStream;
 
 /**
- * <p>Finish interface.</p>
- * Created by Yan Zhenjie on Jan 13, 2016.
+ * <p>Request body.</p>
+ * Created by YanZhenjie on 2017/6/3.
  */
-public interface Finishable {
+public interface RequestBody {
 
-    /**
-     * Finish handle.
-     */
-    void finish();
+    long contentLength();
 
-    /**
-     * Whether they have been completed.
-     *
-     * @return true: finished, false: unfinished.
-     */
-    boolean isFinished();
+    String contentType();
+
+    void onWrite(OutputStream stream) throws IOException;
+
 }

@@ -15,6 +15,8 @@
  */
 package com.yanzhenjie.nohttp;
 
+import com.yanzhenjie.nohttp.network.Network;
+import com.yanzhenjie.nohttp.network.URLConnectionNetworkExecutor;
 import com.yanzhenjie.nohttp.tools.IOUtils;
 
 import java.io.IOException;

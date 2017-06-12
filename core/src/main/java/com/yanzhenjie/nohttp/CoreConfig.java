@@ -21,6 +21,8 @@ import com.yanzhenjie.nohttp.cache.CacheEntity;
 import com.yanzhenjie.nohttp.cache.DBCacheStore;
 import com.yanzhenjie.nohttp.cookie.DBCookieStore;
 import com.yanzhenjie.nohttp.tools.CacheStore;
+import com.yanzhenjie.nohttp.network.NetworkExecutor;
+import com.yanzhenjie.nohttp.network.URLConnectionNetworkExecutor;
 
 import java.net.CookieManager;
 import java.net.CookiePolicy;

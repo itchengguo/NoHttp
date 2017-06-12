@@ -15,17 +15,10 @@
  */
 package com.yanzhenjie.nohttp;
 
-import com.yanzhenjie.nohttp.able.Cancelable;
-import com.yanzhenjie.nohttp.able.Finishable;
-import com.yanzhenjie.nohttp.able.Startable;
-import com.yanzhenjie.nohttp.tools.MultiValueMap;
-
 import org.json.JSONObject;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.net.HttpCookie;
 import java.net.Proxy;
 import java.util.List;
@@ -35,25 +28,10 @@ import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLSocketFactory;
 
 /**
- * Created by Yan Zhenjie on 2016/8/20.
+ * <p>Client request interface.</p>
+ * Created by Yan Zhenjie on 2017/5/18.
  */
-public interface IBasicRequest<Child extends IBasicRequest> extends Startable, Cancelable, Finishable {
-
-    /*
-     * =====================================================
-     * ||                     Client                      ||
-     * =====================================================
-     */
-
-    /**
-     * Mandatory set to form pattern to transmit data.
-     * <p>MultipartFormEnable is request method is the premise of the POST/PUT/PATCH/DELETE, but the Android system
-     * under API level 19 does not support the DELETE.</p>
-     *
-     * @param enable true enable, other wise false.
-     * @return {@link Child}.
-     */
-    Child setMultipartFormEnable(boolean enable);
+public interface IClientRequest<Child extends IClientRequest> {
 
     /**
      * Set proxy server.
@@ -147,8 +125,8 @@ public interface IBasicRequest<Child extends IBasicRequest> extends Startable, C
     /**
      * Set the accept for head.
      *
-     * @param accept such as: "{@value Headers#HEAD_VALUE_ACCEPT_APPLICATION_JSON}", "{@value
-     *               Headers#HEAD_VALUE_ACCEPT_APPLICATION_XML}.
+     * @param accept such as: "{@value Headers#HEAD_VALUE_CONTENT_TYPE_JSON}", "{@value
+     *               Headers#HEAD_VALUE_CONTENT_TYPE_XML}.
      * @return {@link Child}.
      */
     Child setAccept(String accept);
@@ -164,9 +142,9 @@ public interface IBasicRequest<Child extends IBasicRequest> extends Startable, C
     /**
      * Set the contentType for head.
      *
-     * @param contentType such as: "{@value Headers#HEAD_VALUE_ACCEPT_APPLICATION_JSON}", "{@value
-     *                    Headers#HEAD_VALUE_ACCEPT_APPLICATION_XML}" or "{@value
-     *                    Headers#HEAD_VALUE_ACCEPT_MULTIPART_FORM_DATA}". Note,
+     * @param contentType such as: "{@value Headers#HEAD_VALUE_CONTENT_TYPE_JSON}", "{@value
+     *                    Headers#HEAD_VALUE_CONTENT_TYPE_XML}" or "{@value
+     *                    Headers#HEAD_VALUE_CONTENT_TYPE_FORM_DATA}". Note,
      *                    does not need to include quotation marks.
      * @return {@link Child}.
      */
@@ -453,9 +431,9 @@ public interface IBasicRequest<Child extends IBasicRequest> extends Startable, C
      *
      * @param requestBody There can be a file, pictures, any other data flow.You don't need to close it, CoreConfig when
      *                    complete request will be automatically closed.
-     * @param contentType such as: "{@value Headers#HEAD_VALUE_ACCEPT_APPLICATION_XML}{@code ; charset=utf-8}",
-     *                    "{@value Headers#HEAD_VALUE_ACCEPT_APPLICATION_JSON}{@code ; charset=utf-8}" or "{@value
-     *                    Headers#HEAD_VALUE_ACCEPT_MULTIPART_FORM_DATA}". Note, does not need to include quotation
+     * @param contentType such as: "{@value Headers#HEAD_VALUE_CONTENT_TYPE_XML}{@code ; charset=utf-8}",
+     *                    "{@value Headers#HEAD_VALUE_CONTENT_TYPE_JSON}{@code ; charset=utf-8}" or "{@value
+     *                    Headers#HEAD_VALUE_CONTENT_TYPE_FORM_DATA}". Note, does not need to include quotation
      *                    marks.
      * @return {@link Child}.
      * @see #setDefineRequestBody(String, String)
@@ -472,10 +450,10 @@ public interface IBasicRequest<Child extends IBasicRequest> extends Startable, C
      * {@link RequestMethod#POST}, {@link RequestMethod#PATCH} in one of them.</p>
      *
      * @param requestBody string body.
-     * @param contentType such as: "{@value Headers#HEAD_VALUE_ACCEPT_APPLICATION_JSON}" or "{@value
-     *                    Headers#HEAD_VALUE_ACCEPT_APPLICATION_XML}". Note, does not need to include quotation marks.
+     * @param contentType such as: "{@value Headers#HEAD_VALUE_CONTENT_TYPE_JSON}" or "{@value
+     *                    Headers#HEAD_VALUE_CONTENT_TYPE_XML}". Note, does not need to include quotation marks.
      *                    <p>If ContentType parameter into "" or null, the default for the {@value
-     *                    Headers#HEAD_VALUE_ACCEPT_APPLICATION_JSON}.</p>
+     *                    Headers#HEAD_VALUE_CONTENT_TYPE_JSON}.</p>
      * @return {@link Child}.
      * @see #setDefineRequestBody(InputStream, String)
      * @see #setDefineRequestBodyForJson(JSONObject)
@@ -488,7 +466,7 @@ public interface IBasicRequest<Child extends IBasicRequest> extends Startable, C
      * Set the request json body.
      * <p>It is important to note that the request method must be {@link RequestMethod#PUT},
      * {@link RequestMethod#POST}, {@link RequestMethod#PATCH} in one of them.</p>
-     * <p>The content type is {@value Headers#HEAD_VALUE_ACCEPT_APPLICATION_JSON}</p>
+     * <p>The content type is {@value Headers#HEAD_VALUE_CONTENT_TYPE_JSON}</p>
      *
      * @param jsonBody json body.
      * @return {@link Child}.
@@ -503,7 +481,7 @@ public interface IBasicRequest<Child extends IBasicRequest> extends Startable, C
      * Set the request json body.
      * <p>It is important to note that the request method must be {@link RequestMethod#PUT},
      * {@link RequestMethod#POST}, {@link RequestMethod#PATCH} in one of them.</p>
-     * <p>The content type is {@value Headers#HEAD_VALUE_ACCEPT_APPLICATION_JSON}</p>
+     * <p>The content type is {@value Headers#HEAD_VALUE_CONTENT_TYPE_JSON}</p>
      *
      * @param jsonBody json body.
      * @return {@link Child}.
@@ -518,7 +496,7 @@ public interface IBasicRequest<Child extends IBasicRequest> extends Startable, C
      * Set the request XML body.
      * <p>It is important to note that the request method must be {@link RequestMethod#PUT},
      * {@link RequestMethod#POST}, {@link RequestMethod#PATCH} in one of them.</p>
-     * <p>The content type is {@value Headers#HEAD_VALUE_ACCEPT_APPLICATION_XML}</p>
+     * <p>The content type is {@value Headers#HEAD_VALUE_CONTENT_TYPE_XML}</p>
      *
      * @param xmlBody xml body.
      * @return {@link Child}.
@@ -544,153 +522,5 @@ public interface IBasicRequest<Child extends IBasicRequest> extends Startable, C
      * @return {@link Child}.
      */
     Child setTag(Object tag);
-
-     /*
-      * =====================================================
-      * ||                     Server                      ||
-      * =====================================================
-      */
-
-    /**
-     * Return url of request.
-     *
-     * @return Url.
-     */
-    String url();
-
-    /**
-     * return method of request.
-     *
-     * @return {@link RequestMethod}.
-     */
-    RequestMethod getRequestMethod();
-
-    /**
-     * Is MultipartFormEnable ?
-     * <p>MultipartFormEnable is request method is the premise of the POST/PUT/PATCH/DELETE, but the Android system
-     * under API level 19 does not support the DELETE.</p>
-     *
-     * @return true enable, other wise false.
-     */
-    boolean isMultipartFormEnable();
-
-    /**
-     * Get proxy server.
-     *
-     * @return Can use {@code Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress("64.233.162.83", 80));}.
-     */
-    Proxy getProxy();
-
-    /**
-     * Get SSLSocketFactory.
-     *
-     * @return {@link SSLSocketFactory}.
-     */
-    SSLSocketFactory getSSLSocketFactory();
-
-    /**
-     * Get the HostnameVerifier.
-     *
-     * @return {@link HostnameVerifier}.
-     */
-    HostnameVerifier getHostnameVerifier();
-
-    /**
-     * Get the connection timeout time, Unit is a millisecond.
-     *
-     * @return Connection timeout.
-     */
-    int getConnectTimeout();
-
-    /**
-     * Get the read timeout time, Unit is a millisecond.
-     *
-     * @return Read timeout.
-     */
-    int getReadTimeout();
-
-    /**
-     * Get all Heads.
-     *
-     * @return {@code Headers}.
-     */
-    Headers headers();
-
-    /**
-     * To getList the failure after retries.
-     *
-     * @return The default value is 0.
-     */
-    int getRetryCount();
-
-    /**
-     * The length of the request body.
-     *
-     * @return Such as: {@code 2048}.
-     */
-    long getContentLength();
-
-    /**
-     * Get {@value Headers#HEAD_KEY_CONTENT_TYPE}.
-     *
-     * @return string, such as: {@value Headers#HEAD_VALUE_ACCEPT_APPLICATION_JSON}.
-     */
-    String getContentType();
-
-    /**
-     * Get the params encoding.
-     *
-     * @return such as {@code "utf-8, gbk, bg2312"}.
-     */
-    String getParamsEncoding();
-
-    /**
-     * Call before carry out the request, you can do some preparation work.
-     */
-    void onPreExecute();
-
-    /**
-     * Get the redirect handler.
-     *
-     * @return {@link RedirectHandler}.
-     */
-    RedirectHandler getRedirectHandler();
-
-    /**
-     * Get the parameters of key-value pairs.
-     *
-     * @return Not empty Map.
-     */
-    MultiValueMap<String, Object> getParamKeyValues();
-
-    /**
-     * Send request body data.
-     *
-     * @param writer {@link OutputStream}.
-     * @throws IOException write error.
-     */
-    void onWriteRequestBody(OutputStream writer) throws IOException;
-
-    /**
-     * Should to return the tag of the object.
-     *
-     * @return {@link Object}.
-     */
-    Object getTag();
-
-    /**
-     * Set cancel sign.
-     *
-     * @param object a object.
-     * @return {@link Child}.
-     */
-    Child setCancelSign(Object object);
-
-    /**
-     * Cancel operation by contrast the sign.
-     *
-     * @param sign an object that can be null.
-     */
-    void cancelBySign(Object sign);
 
 }
