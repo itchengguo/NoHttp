@@ -15,50 +15,38 @@
  */
 package com.yanzhenjie.nohttp.download;
 
-import android.os.Process;
-
-import com.yanzhenjie.nohttp.Headers;
 import com.yanzhenjie.nohttp.Logger;
 
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * <p>
- * Download queue polling thread.
- * </p>
- * Created in Oct 21, 2015 2:46:23 PM.
+ * <p> Download queue polling thread. </p> Created in Oct 21, 2015 2:46:23 PM.
  *
  * @author Yan Zhenjie.
  */
-class DownloadDispatcher extends Thread {
+class DownloadDispatcher
+  extends Thread {
 
-    /**
-     * Un finish task queue.
-     */
-    private final BlockingQueue<DownloadRequest> mUnFinishQueue;
-    /**
-     * Download task queue.
-     */
-    private final BlockingQueue<DownloadRequest> mDownloadQueue;
-    /**
-     * Are you out of this thread.
-     */
+    private static final ThreadFactory THREAD_FACTORY = new ThreadFactory() {
+        private final AtomicInteger mCount = new AtomicInteger(1);
+
+        public Thread newThread(Runnable r) {
+            return new Thread(r, "Download #" + mCount.getAndIncrement());
+        }
+    };
+
+    private final Executor mExecutor = Executors.newCachedThreadPool(THREAD_FACTORY);
+    private final BlockingQueue<Work<? extends DownloadRequest>> mQueue;
     private boolean mQuit = false;
 
-    /**
-     * Create a thread that executes the download queue.
-     *
-     * @param unFinishQueue un finish queue.
-     * @param downloadQueue download queue to be polled.
-     */
-    public DownloadDispatcher(BlockingQueue<DownloadRequest> unFinishQueue, BlockingQueue<DownloadRequest> downloadQueue) {
-        this.mUnFinishQueue = unFinishQueue;
-        this.mDownloadQueue = downloadQueue;
+    public DownloadDispatcher(BlockingQueue<Work<? extends DownloadRequest>> queue) {
+        this.mQueue = queue;
     }
 
-    /**
-     * Quit this thread.
-     */
     public void quit() {
         mQuit = true;
         interrupt();
@@ -66,62 +54,27 @@ class DownloadDispatcher extends Thread {
 
     @Override
     public void run() {
-        Process.setThreadPriority(Process.THREAD_PRIORITY_BACKGROUND);
         while (!mQuit) {
-            final DownloadRequest request;
+            final Work<? extends DownloadRequest> work;
             try {
-                request = mDownloadQueue.take();
+                work = mQueue.take();
             } catch (InterruptedException e) {
-                if (mQuit)
-                    return;
+                if (mQuit) {
+                    Logger.w("Queue exit, stop blocking.");
+                    break;
+                }
+                Logger.e(e);
                 continue;
             }
 
-            if (request.isCanceled()) {
-                Logger.d(request.url() + " is canceled.");
-                continue;
+            synchronized (this) {
+                work.setLock(this);
+                mExecutor.execute(work);
+                try {
+                    this.wait();
+                } catch (InterruptedException ignored) {
+                }
             }
-
-            request.start();
-            SyncDownloadExecutor.INSTANCE.execute(request.what(), request, new DownloadListener() {
-
-                @Override
-                public void onStart(int what, boolean isResume, long beforeLength, Headers headers, long allCount) {
-                    Messenger.prepare(what, request.downloadListener())
-                            .onStart(isResume, beforeLength, headers, allCount)
-                            .post();
-                }
-
-                @Override
-                public void onDownloadError(int what, Exception exception) {
-                    Messenger.prepare(what, request.downloadListener())
-                            .onError(exception)
-                            .post();
-                }
-
-                @Override
-                public void onProgress(int what, int progress, long fileCount, long speed) {
-                    Messenger.prepare(what, request.downloadListener())
-                            .onProgress(progress, fileCount, speed)
-                            .post();
-                }
-
-                @Override
-                public void onFinish(int what, String filePath) {
-                    Messenger.prepare(what, request.downloadListener())
-                            .onFinish(filePath)
-                            .post();
-                }
-
-                @Override
-                public void onCancel(int what) {
-                    Messenger.prepare(what, request.downloadListener())
-                            .onCancel()
-                            .post();
-                }
-            });
-            request.finish();
-            mUnFinishQueue.remove(request);
         }
     }
 }

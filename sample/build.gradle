@@ -11,37 +11,32 @@ android {
         versionCode rootProject.ext.android.versionCode
         versionName rootProject.ext.android.versionName
     }
-
-    compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_7
-        targetCompatibility JavaVersion.VERSION_1_7
-    }
 }
 
 dependencies {
-    compile rootProject.ext.dependencies.nohttp
-    compile rootProject.ext.dependencies.okhttp
+    testImplementation rootProject.ext.dependencies.junit
+    androidTestImplementation(rootProject.ext.dependencies.expressoCore) {
+        exclude group: "com.android.support", module: "support-annotations"
+    }
 
-    // support.
-    compile rootProject.ext.dependencies.appCompat
-    compile rootProject.ext.dependencies.design
-    compile rootProject.ext.dependencies.recyclerView
-    compile rootProject.ext.dependencies.cardView
+    implementation rootProject.ext.dependencies.nohttp
+    implementation rootProject.ext.dependencies.okhttp
 
-    // json parser.
-    compile rootProject.ext.dependencies.fastJson
+    implementation rootProject.ext.dependencies.appCompat
+    implementation rootProject.ext.dependencies.design
+    implementation rootProject.ext.dependencies.cardView
+    implementation rootProject.ext.dependencies.recyclerView
 
-    // circle image.
-    compile rootProject.ext.dependencies.circleImageView
+    implementation rootProject.ext.dependencies.fastjson
+    implementation rootProject.ext.dependencies.permission
+    implementation rootProject.ext.dependencies.loading
+    implementation rootProject.ext.dependencies.album
+    implementation rootProject.ext.dependencies.glide
 
-    // image.
-    compile rootProject.ext.dependencies.album
-    compile rootProject.ext.dependencies.durban
+    implementation rootProject.ext.dependencies.butterKnife
+    annotationProcessor rootProject.ext.dependencies.butterKnifeCompiler
 
-    // statusView
-    compile rootProject.ext.dependencies.statusView
-
-    debugCompile 'com.squareup.leakcanary:leakcanary-android:1.5.1'
-    releaseCompile 'com.squareup.leakcanary:leakcanary-android-no-op:1.5.1'
-    testCompile 'com.squareup.leakcanary:leakcanary-android-no-op:1.5.1'
+    debugImplementation 'com.squareup.leakcanary:leakcanary-android:1.5.4'
+    releaseImplementation 'com.squareup.leakcanary:leakcanary-android-no-op:1.5.4'
+    testImplementation 'com.squareup.leakcanary:leakcanary-android-no-op:1.5.4'
 }

@@ -15,75 +15,38 @@
  */
 package com.yanzhenjie.nohttp.rest;
 
-import com.yanzhenjie.nohttp.Logger;
+import com.yanzhenjie.nohttp.able.Cancelable;
 
-import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * <p>
- * Asynchronous request executor.
- * </p>
- * Created by Yan Zhenjie on 2017/2/15.
+ * <p> Asynchronous handle executor.
+ *
+ * </p> Created by Yan Zhenjie on 2017/2/15.
  */
 public enum AsyncRequestExecutor {
 
     INSTANCE;
 
-    /**
-     * ExecutorService.
-     */
-    private ExecutorService mExecutorService;
+    private static final ThreadFactory THREAD_FACTORY = new ThreadFactory() {
+        private final AtomicInteger mCount = new AtomicInteger(1);
 
-    AsyncRequestExecutor() {
-        mExecutorService = Executors.newCachedThreadPool();
-    }
-
-    public <T> void execute(int what, Request<T> request, OnResponseListener<T> responseListener) {
-        request.onPreResponse(what, responseListener);
-        mExecutorService.execute(new RequestTask<>(request));
-    }
-
-    private static class RequestTask<T> implements Runnable {
-
-        private Request<T> request;
-
-        private RequestTask(Request<T> request) {
-            this.request = request;
+        public Thread newThread(Runnable r) {
+            return new Thread(r, "Request #" + mCount.getAndIncrement());
         }
+    };
 
-        @Override
-        public void run() {
-            if (request.isCanceled()) {
-                Logger.d(request.url() + " is canceled.");
-                return;
-            }
+    private static final Executor EXECUTOR = Executors.newCachedThreadPool(THREAD_FACTORY);
 
-            final int what = request.what();
-            final OnResponseListener<T> listener = request.responseListener();
+    public <T> Cancelable execute(int what, Request<T> request, OnResponseListener<T> callback) {
+        Worker<? extends Request<T>, T> worker = new Worker<>(request);
+        Work work = new Work<>(worker, what, callback);
+        request.setCancelable(work);
 
-            // start.
-            request.start();
-            Messenger.prepare(what, listener)
-                    .start()
-                    .post();
-
-            // request.
-            Response<T> response = SyncRequestExecutor.INSTANCE.execute(request);
-
-            if (request.isCanceled())
-                Logger.d(request.url() + " finish, but it's canceled.");
-            else
-                Messenger.prepare(what, listener)
-                        .response(response)
-                        .post();
-
-            // finish.
-            request.finish();
-            Messenger.prepare(what, listener)
-                    .finish()
-                    .post();
-        }
+        EXECUTOR.execute(work);
+        return work;
     }
-
 }

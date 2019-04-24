@@ -15,48 +15,40 @@
  */
 package com.yanzhenjie.nohttp.rest;
 
-import android.os.Process;
-
 import com.yanzhenjie.nohttp.Logger;
 
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * <p>
- * Request queue polling thread.
- * </p>
+ * <p> Request queue polling thread. </p>
+ *
  * Created in Oct 19, 2015 8:35:35 AM.
  *
  * @author Yan Zhenjie.
  */
-public class RequestDispatcher extends Thread {
-    /**
-     * Request queue.
-     */
-    private final BlockingQueue<Request<?>> mRequestQueue;
-    /**
-     * Un finish task queue.
-     */
-    private final BlockingQueue<Request<?>> mUnFinishQueue;
-    /**
-     * Whether the current request queue polling thread is out of.
-     */
-    private volatile boolean mQuit = false;
+public class RequestDispatcher
+  extends Thread {
 
-    /**
-     * Create a request queue polling thread.
-     *
-     * @param unFinishQueue un finish queue.
-     * @param requestQueue  request queue.
-     */
-    public RequestDispatcher(BlockingQueue<Request<?>> unFinishQueue, BlockingQueue<Request<?>> requestQueue) {
-        this.mUnFinishQueue = unFinishQueue;
-        this.mRequestQueue = requestQueue;
+    private static final ThreadFactory THREAD_FACTORY = new ThreadFactory() {
+        private final AtomicInteger mCount = new AtomicInteger(1);
+
+        public Thread newThread(Runnable r) {
+            return new Thread(r, "Request #" + mCount.getAndIncrement());
+        }
+    };
+
+    private final Executor mExecutor = Executors.newCachedThreadPool(THREAD_FACTORY);
+    private final BlockingQueue<Work<? extends Request<?>, ?>> mQueue;
+    private boolean mQuit = false;
+
+    public RequestDispatcher(BlockingQueue<Work<? extends Request<?>, ?>> queue) {
+        this.mQueue = queue;
     }
 
-    /**
-     * Exit polling thread.
-     */
     public void quit() {
         this.mQuit = true;
         interrupt();
@@ -64,11 +56,10 @@ public class RequestDispatcher extends Thread {
 
     @Override
     public void run() {
-        Process.setThreadPriority(Process.THREAD_PRIORITY_BACKGROUND);
         while (!mQuit) {
-            final Request<?> request;
+            final Work<? extends Request<?>, ?> work;
             try {
-                request = mRequestQueue.take();
+                work = mQueue.take();
             } catch (InterruptedException e) {
                 if (mQuit) {
                     Logger.w("Queue exit, stop blocking.");
@@ -78,39 +69,14 @@ public class RequestDispatcher extends Thread {
                 continue;
             }
 
-            if (request.isCanceled()) {
-                Logger.d(request.url() + " is canceled.");
-                continue;
+            synchronized (this) {
+                work.setLock(this);
+                mExecutor.execute(work);
+                try {
+                    this.wait();
+                } catch (InterruptedException ignored) {
+                }
             }
-
-            int what = request.what();
-            OnResponseListener<?> listener = request.responseListener();
-
-            // start
-            request.start();
-            Messenger.prepare(what, listener)
-                    .start()
-                    .post();
-
-            // request.
-            Response response = SyncRequestExecutor.INSTANCE.execute(request);
-            // remove it from queue.
-            mUnFinishQueue.remove(request);
-
-            // response
-            if (request.isCanceled())
-                Logger.d(request.url() + " finish, but it's canceled.");
-            else
-                //noinspection unchecked
-                Messenger.prepare(what, listener)
-                        .response(response)
-                        .post();
-
-            // finish.
-            request.finish();
-            Messenger.prepare(what, listener)
-                    .finish()
-                    .post();
         }
     }
 }

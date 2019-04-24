@@ -64,13 +64,13 @@ public class URLConnectionNetworkExecutor implements NetworkExecutor {
         }
 
         // Base attribute
-        connection.setRequestMethod(request.getRequestMethod().toString());
+        connection.setRequestMethod(request.getRequestMethod().getValue());
 
         connection.setDoInput(true);
         boolean isAllowBody = isAllowBody(request.getRequestMethod());
         connection.setDoOutput(isAllowBody);
 
-        // Adds all request header to connection.
+        // Adds all handle header to connection.
         Headers headers = request.getHeaders();
 
         // To fix bug: accidental EOFException before API 19.

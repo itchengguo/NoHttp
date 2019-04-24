@@ -21,6 +21,7 @@ import com.yanzhenjie.nohttp.cache.CacheEntity;
 import com.yanzhenjie.nohttp.cache.DBCacheStore;
 import com.yanzhenjie.nohttp.cache.DiskCacheStore;
 import com.yanzhenjie.nohttp.cookie.DBCookieStore;
+import com.yanzhenjie.nohttp.rest.Interceptor;
 import com.yanzhenjie.nohttp.ssl.SSLUtils;
 import com.yanzhenjie.nohttp.tools.CacheStore;
 import com.yanzhenjie.nohttp.tools.LinkedMultiValueMap;
@@ -61,6 +62,8 @@ public final class InitializationConfig {
 
     private NetworkExecutor mNetworkExecutor;
 
+    private Interceptor mInterceptor;
+
     private InitializationConfig(Builder builder) {
         this.mContext = builder.mContext;
 
@@ -91,6 +94,8 @@ public final class InitializationConfig {
         this.mNetworkExecutor = builder.mNetworkExecutor;
         if (this.mNetworkExecutor == null)
             this.mNetworkExecutor = new URLConnectionNetworkExecutor();
+
+        this.mInterceptor = builder.mInterceptor;
     }
 
     public Context getContext() {
@@ -141,6 +146,10 @@ public final class InitializationConfig {
         return mNetworkExecutor;
     }
 
+    public Interceptor getInterceptor() {
+        return mInterceptor;
+    }
+
     public final static class Builder {
 
         private Context mContext;
@@ -159,6 +168,8 @@ public final class InitializationConfig {
         private CacheStore<CacheEntity> mCacheStore;
 
         private NetworkExecutor mNetworkExecutor;
+
+        private Interceptor mInterceptor;
 
         private Builder(Context context) {
             this.mContext = context.getApplicationContext();
@@ -212,7 +223,7 @@ public final class InitializationConfig {
         }
 
         /**
-         * Add the global request header.
+         * Add the global handle header.
          */
         public Builder addHeader(String key, String value) {
             mHeaders.add(key, value);
@@ -220,7 +231,7 @@ public final class InitializationConfig {
         }
 
         /**
-         * Add the global request param.
+         * Add the global handle param.
          */
         public Builder addParam(String key, String value) {
             mParams.add(key, value);
@@ -255,6 +266,11 @@ public final class InitializationConfig {
          */
         public Builder networkExecutor(NetworkExecutor executor) {
             this.mNetworkExecutor = executor;
+            return this;
+        }
+
+        public Builder interceptor(Interceptor interceptor) {
+            this.mInterceptor = interceptor;
             return this;
         }
 

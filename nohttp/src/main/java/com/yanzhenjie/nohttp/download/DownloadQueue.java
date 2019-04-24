@@ -15,40 +15,29 @@
  */
 package com.yanzhenjie.nohttp.download;
 
-import com.yanzhenjie.nohttp.Logger;
+import com.yanzhenjie.nohttp.CancelerManager;
+import com.yanzhenjie.nohttp.HandlerDelivery;
+import com.yanzhenjie.nohttp.Headers;
 
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.PriorityBlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * <p>
- * Download queue.
- * </p>
+ * <p> Download queue. </p>
+ *
  * Created in Oct 21, 2015 2:44:19 PM.
  *
  * @author Yan Zhenjie.
  */
 public class DownloadQueue {
 
-    private AtomicInteger mInteger = new AtomicInteger();
-    /**
-     * Save un finish task.
-     */
-    private final BlockingQueue<DownloadRequest> mUnFinishQueue = new LinkedBlockingDeque<>();
-    /**
-     * Save download task.
-     */
-    private final BlockingQueue<DownloadRequest> mDownloadQueue = new PriorityBlockingQueue<>();
-    /**
-     * Download queue polling thread array.
-     */
+    private AtomicInteger mInteger = new AtomicInteger(1);
+    private final BlockingQueue<Work<? extends DownloadRequest>> mQueue = new PriorityBlockingQueue<>();
+    private final CancelerManager mCancelerManager = new CancelerManager();
     private DownloadDispatcher[] mDispatchers;
 
     /**
-     * Create download queue manager.
-     *
      * @param threadPoolSize number of thread pool.
      */
     public DownloadQueue(int threadPoolSize) {
@@ -56,86 +45,184 @@ public class DownloadQueue {
     }
 
     /**
-     * Start polling the download queue, a one of the implementation of the download task, if you have started to
-     * poll the download queue, then it will stop all the threads, to re create thread
-     * execution.
+     * All dispatcher in the boot queue, such as the dispatcher that has already been started in the queue,
+     * will stop all dispatcher first and restart the equal number of dispatcher.
+     *
+     * @see #stop()
      */
     public void start() {
         stop();
+
         for (int i = 0; i < mDispatchers.length; i++) {
-            DownloadDispatcher networkDispatcher = new DownloadDispatcher(mUnFinishQueue, mDownloadQueue);
-            mDispatchers[i] = networkDispatcher;
-            networkDispatcher.start();
+            DownloadDispatcher dispatcher = new DownloadDispatcher(mQueue);
+            mDispatchers[i] = dispatcher;
+            dispatcher.start();
         }
     }
 
     /**
-     * Add a download task to download queue, waiting for execution, if there is no task in the queue or the number
-     * of tasks is less than the number of thread pool, will be executed immediately.
+     * Add a request to the queue.
      *
-     * @param what             used to distinguish Download.
-     * @param downloadRequest  download request object.
-     * @param downloadListener download results monitor.
+     * @param what the {@code what} be returned in the result callback.
+     * @param request {@link DownloadRequest}
+     * @param listener {@link DownloadListener}
      */
-    public void add(int what, DownloadRequest downloadRequest, DownloadListener downloadListener) {
-        if (downloadRequest.inQueue())
-            Logger.w("This request has been in the queue");
-        else {
-            downloadRequest.setQueue(mUnFinishQueue);
-            downloadRequest.onPreResponse(what, downloadListener);
-            downloadRequest.setSequence(mInteger.incrementAndGet());
-            mUnFinishQueue.add(downloadRequest);
-            mDownloadQueue.add(downloadRequest);
-        }
+    public void add(int what, final DownloadRequest request, DownloadListener listener) {
+        AsyncCallback callback = new AsyncCallback(listener);
+        Worker<? extends DownloadRequest> worker = new Worker<>(what, request, callback);
+        final Work<? extends DownloadRequest> work = new Work<>(worker, what, callback);
+        work.setSequence(mInteger.incrementAndGet());
+
+        callback.setQueue(mQueue);
+        callback.setCancelerManager(mCancelerManager);
+        callback.setWork(work);
+        callback.setRequest(request);
+
+        request.setCancelable(work);
+
+        mCancelerManager.addCancel(request, work);
+        mQueue.add(work);
     }
 
     /**
-     * Don't start return request queue size.
-     *
-     * @return size.
+     * @deprecated use {@link #unFinishSize()} instead.
+     */
+    @Deprecated
+    public int size() {
+        return unFinishSize();
+    }
+
+    /**
+     * The number of requests that have not been executed yet.
      */
     public int unStartSize() {
-        return mDownloadQueue.size();
+        return mQueue.size();
     }
 
     /**
-     * Returns have started but not the end of the request queue size.
-     *
-     * @return size.
+     * The number of all requests, including the request being executed.
      */
     public int unFinishSize() {
-        return mUnFinishQueue.size();
+        return mCancelerManager.size();
     }
 
     /**
-     * Polling the queue will not be executed, and this will not be canceled.
+     * Cancel all requests and stop all dispatchers in the queue.
      */
     public void stop() {
+        cancelAll();
+
         for (DownloadDispatcher dispatcher : mDispatchers) {
-            if (dispatcher != null)
+            if (dispatcher != null) {
                 dispatcher.quit();
+            }
         }
     }
 
     /**
-     * All requests for the sign specified in the queue, if you are executing, will interrupt the download task.
+     * According to the sign to cancel a task.
      *
-     * @param sign this sign will be the same as sign's DownloadRequest, and if it is the same, then cancel the task.
+     * @see CancelerManager#cancel(Object)
      */
     public void cancelBySign(Object sign) {
-        synchronized (mUnFinishQueue) {
-            for (DownloadRequest downloadRequest : mUnFinishQueue)
-                downloadRequest.cancelBySign(sign);
-        }
+        mCancelerManager.cancel(sign);
     }
 
     /**
-     * Cancel all requests, Already in the execution of the request can't use this method.
+     * Cancel all requests.
      */
     public void cancelAll() {
-        synchronized (mUnFinishQueue) {
-            for (DownloadRequest downloadRequest : mUnFinishQueue)
-                downloadRequest.cancel();
+        mCancelerManager.cancelAll();
+    }
+
+    private static class AsyncCallback
+      implements DownloadListener {
+
+        private final DownloadListener mCallback;
+        private BlockingQueue<Work<? extends DownloadRequest>> mQueue;
+        private Work<? extends DownloadRequest> mWork;
+        private CancelerManager mCancelerManager;
+        private DownloadRequest mRequest;
+
+        public AsyncCallback(DownloadListener callback) {
+            this.mCallback = callback;
+        }
+
+        public void setQueue(BlockingQueue<Work<? extends DownloadRequest>> queue) {
+            mQueue = queue;
+        }
+
+        public void setWork(Work<? extends DownloadRequest> work) {
+            mWork = work;
+        }
+
+        public void setCancelerManager(CancelerManager cancelerManager) {
+            mCancelerManager = cancelerManager;
+        }
+
+        public void setRequest(DownloadRequest request) {
+            mRequest = request;
+        }
+
+        @Override
+        public void onDownloadError(final int what, final Exception exception) {
+            removeRequest();
+            HandlerDelivery.getInstance().post(new Runnable() {
+                @Override
+                public void run() {
+                    mCallback.onDownloadError(what, exception);
+                }
+            });
+        }
+
+        @Override
+        public void onStart(final int what, final boolean isResume, final long rangeSize,
+                            final Headers headers, final long allCount) {
+            HandlerDelivery.getInstance().post(new Runnable() {
+                @Override
+                public void run() {
+                    mCallback.onStart(what, isResume, rangeSize, headers, allCount);
+                }
+            });
+        }
+
+        @Override
+        public void onProgress(final int what, final int progress, final long fileCount, final long speed) {
+            HandlerDelivery.getInstance().post(new Runnable() {
+                @Override
+                public void run() {
+                    mCallback.onProgress(what, progress, fileCount, speed);
+                }
+            });
+        }
+
+        @Override
+        public void onFinish(final int what, final String filePath) {
+            removeRequest();
+            HandlerDelivery.getInstance().post(new Runnable() {
+                @Override
+                public void run() {
+                    mCallback.onFinish(what, filePath);
+                }
+            });
+        }
+
+        @Override
+        public void onCancel(final int what) {
+            removeRequest();
+            HandlerDelivery.getInstance().post(new Runnable() {
+                @Override
+                public void run() {
+                    mCallback.onCancel(what);
+                }
+            });
+        }
+
+        private void removeRequest() {
+            mCancelerManager.removeCancel(mRequest);
+            if (mQueue.contains(mWork)) {
+                mQueue.remove(mWork);
+            }
         }
     }
 
